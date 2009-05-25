@@ -1,3 +1,5 @@
+#sidebar TableOfContents
+
 Blog about connecting Arduino and M5451 is at: http://effluviaofascatteredmind.blogspot.com/2009/02/arduino-and-m5451-control-35-leds.html.
 
 Blog about the shield boards: http://effluviaofascatteredmind.blogspot.com/2009/02/my-first-arduino-shield-arrived.html
