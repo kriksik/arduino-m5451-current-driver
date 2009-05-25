@@ -1,0 +1,3 @@
+Here is a video of the board in action driving LEDs and a motor (through a L298N driver chip).
+<br/> 
+<wiki:video url="http://www.youtube.com/watch?v=E0D8hDt2M60"/>
