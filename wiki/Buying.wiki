@@ -1,0 +1,13 @@
+#summary One-sentence summary of this page.
+
+= Buying Hardware =
+
+== M5451 ==
+The M5451 chip is available either as a 40 pin DIP package (breadboardable) or as a surface mount package.  The part is no longer produced by ST Microelectronics so that confuses the issue, but Micrel has it under the MM5451YN name.  I sourced mine from Future Electronics:
+
+[http://www.futureelectronics.com/en/Technologies/Product.aspx?ProductID=MM5451YNMICRELSEMICONDUCTOR5939202]
+
+
+== CCShield ==
+
+I had 10 prototypes built which are a few more than I need so drop me an email or add a comment here (with your obfuscated email address) if you would like one.  Unfortunately, due to the low volume production, it cost me about $10 a board for the circuit boards.  Each Micrel part is $3.67, so when you add in the IDE connectors and so forth, I'm breaking even at about $19.99 not even counting the labor of soldering it all together.  It would be cheaper if there is enough interest to do higher volume.
