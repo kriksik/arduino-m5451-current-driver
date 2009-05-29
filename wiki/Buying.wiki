@@ -2,7 +2,7 @@
 
 = Buying Hardware =
 
-== M5451 ==
+== MM5451YN ==
 The M5451 chip is available either as a 40 pin DIP package (breadboardable) or as a surface mount package.  The part is no longer produced by ST Microelectronics in DIP format so that confuses the issue, but Micrel has it under the MM5451YN name.  I sourced mine from Future Electronics:
 
 [http://www.futureelectronics.com/en/Technologies/Product.aspx?ProductID=MM5451YNMICRELSEMICONDUCTOR5939202]
@@ -12,6 +12,9 @@ Future electronic also carries surface mount versions
 You can buy ST Microelectronics surface mount parts from Mouser:
 
 [http://mouser.com/Search/ProductDetail.aspx?qs=gr8Zi5OG3Mi5UnW0nBYFJA%3d%3d]
+
+Digikey
+[http://parts.digikey.com/1/parts/488039-ic-driver-display-led-40dip-mm5451yn.html]
 
 
 == CCShield ==
