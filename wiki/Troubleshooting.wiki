@@ -1,0 +1,12 @@
+#summary Why isn't it working for me!?!
+
+== My LEDs are smoking or burning out! ==
+
+Are you using a DC "wall-wart" transformer?  Those are *unregulated* power supplies!  The voltage printed on them is the mininum voltage.  Check the voltage with a voltmeter and make sure that it is less than the M5451 maximum of 13 volts!
+
+To solve this problem use a different transformer, or feed the power into a voltage regulator chip first.
+
+
+== When I turn on all LEDs on multiple M5451 chips, lots of them suddenly turn off  ==
+
+Does every LED connected to one (or more) M5451s turn off?  If so, your DC "wall-wart" transformer is not supplying enough current (the rated current is printed on the transformer).  Either don't turn on all the LEDs at once, get a bigger transformer, or use the M5451 "brightness" feature to run them all a bit dimmer.
