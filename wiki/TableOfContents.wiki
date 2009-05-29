@@ -2,9 +2,9 @@
 
 * [Buying Buying Hardware]
 
-* [External External links: Blogs, Exhibition, etc]
+* [External External links]
     * [MyBlogs My blogs]
     * [Exhibition]
 
-* [Breadboarding]
+* [ArduinoM5451 Breadboarding]
     * [Troubleshooting]
