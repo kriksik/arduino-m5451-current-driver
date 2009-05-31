@@ -25,6 +25,16 @@
 #define CCShield_NUMOUTS 70
 #define M5451_CLK 1L
 
+
+// Maximum number of gradations of brightness
+#define CCShield_MAX_BRIGHTNESS 256
+
+// This is the mininum intensity to set for flickerless viewing.  It is subjective, and also depends upon
+// how much time you are spending doing other things.  The LED will be OFF for MIN_INTENSITY/MAX_BRIGHTNESS amount of time
+// When this is (say) 1/256, you can see the LED flicker since it only blinks once per 256 loop iterations!
+// Strangely, the amount of visible flicker also depends upon how much current you put across the LEDs (ie. the "brightness" selector)
+#define CCShield_MIN_INTENSITY 17  
+
 /* This class provides the basic functions to control the M5451 chip; in particular, it drives 2 simultaneously
    which is how the constant-current shield is laid out.
 */
@@ -60,15 +70,12 @@ class CCShield
 
 // This function sets a particular bit by index in a bitmap contained in parameters a,b,c
 // you can then pass these into the CCShield "set" function. 
-void setbit(uint8_t offset,unsigned long int* a, unsigned long int* b, uint8_t* c);
+void setbit(unsigned char offset,unsigned long int* a, unsigned long int* b, unsigned char* c);
 
 // This function clears a particular bit by index in a bitmap contained in parameters a,b,c
 // you can then pass these into the CCShield "set" function. 
-void clearbit(uint8_t offset,unsigned long int* a, unsigned long int* b, uint8_t* c);
+void clearbit(unsigned char offset,unsigned long int* a, unsigned long int* b, unsigned char* c);
 
-
-// Maximum number of gradations of brightness
-#define MaxBrightness 2048 //256
 
 // The FlickerBrightness class changes the apparent brightness of individual LEDs by turning them off and on rapidly.
 // This technique is called PWM (pulse-width modulation) and if done fast enough, the fact of persistence of vision means
@@ -93,7 +100,7 @@ class FlickerBrightness
   void loop(void);
   
   // Set this variable to the desired brightness, indexed by the LED you want to control
-  int brightness[CCShield_NUMOUTS];
+  uint8_t brightness[CCShield_NUMOUTS];
   
   // Private
   int bresenham[CCShield_NUMOUTS];
@@ -111,7 +118,7 @@ class ChangeBrightness
   ChangeBrightness(FlickerBrightness& thebrd, void (*doneCallback)(ChangeBrightness& me, int led)=0);
   
   /* Transition the light at index 'led' to intensity over count iterations */
-  void set(int led, int intensity, int count);
+  void set(uint8_t led, uint8_t intensity, int count);
   
   // Call loop periodically and rapidly to change the brightness.  This function calls FlickerBrightness.loop(), so
   // it is unnecessary for you to do so.
@@ -119,10 +126,10 @@ class ChangeBrightness
  
   // semi-private variables 
   FlickerBrightness& brd;
-  int change[CCShield_NUMOUTS];
-  int count[CCShield_NUMOUTS];
-  int countdn[CCShield_NUMOUTS];  
-  int bresenham[CCShield_NUMOUTS];
+  int  change[CCShield_NUMOUTS];
+  int  count[CCShield_NUMOUTS];
+  uint8_t destination[CCShield_NUMOUTS];  
+  int  bresenham[CCShield_NUMOUTS];
   void (*doneCall)(ChangeBrightness& me, int led);
 };
 

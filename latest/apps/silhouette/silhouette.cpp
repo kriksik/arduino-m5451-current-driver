@@ -35,6 +35,7 @@ const byte rightDial = 1;
 
 byte state = 1;
 int lightRate = 63; //1023;
+long int longevity = 10;  // How long to keep the LEDs lit in some modes
 
 // LED layout.  If the LEDs in your grid are not wired linearly this translation table can adjust them
 // but you must update the values to reflect your grid.
@@ -68,7 +69,7 @@ byte cvt(byte in)
 }
 
 // A simple pseudo-random number generator
-unsigned long int seed=1;
+unsigned long int seed=5832204;
 unsigned long int gerhardRand(unsigned long int lim)
 {
   seed=(seed*32719 + 3) % 32749;
@@ -102,7 +103,7 @@ void setup()                    // run once, when the sketch starts
 // Put the System to sleep when the power button is pressed, or the mode times out
 void sleepNow()
 {
-  //attachInterrupt(wakePin-2,wakeNow,RISING);
+  attachInterrupt(wakePin-2,wakeNow,RISING);
   set_sleep_mode(SLEEP_MODE_IDLE);  //PWR_DOWN);
   sleep_enable();
   power_adc_disable();
@@ -125,8 +126,10 @@ void sleepNow()
 
 void DeltaDone(ChangeBrightness& me, int led)
 {
-  if (me.brd.brightness[led]<160) me.brd.brightness[led]=0;  /* all done */
-  else me.set(led,0,me.count[led]);  /* Dim it in the same # of steps */  
+  if (me.brd.brightness[led]<=CCShield_MIN_INTENSITY) { me.destination[led]=0; me.brd.brightness[led]=0; }  /* all done */
+  //else me.set(led,0,me.count[led]);  /* Dim it in the same # of steps */  
+  else me.set(led,CCShield_MIN_INTENSITY,gerhardRand(longevity*5));  /* Dim it in a random # of steps */  
+  
 }
 
 void RandomFader(CCShield& brd,unsigned long int time)
@@ -134,30 +137,33 @@ void RandomFader(CCShield& brd,unsigned long int time)
   FlickerBrightness f(brd);
   ChangeBrightness display(f,DeltaDone);
   unsigned long int i;
-  byte curBrightness = (analogRead(rightDial)/(ANALOG_READ_MAX/256));
+  longevity = analogRead(rightDial)+1;
   
   brd.setBrightness(255);  // By default highest brightness unless the dial is moved
   
-  state = 1;
-  for (i=0;(i<time) && state;i++)
-  {       
-    attachInterrupt(wakePin-2,sleepInterrupt,RISING);
-    lightRate = analogRead(leftDial);
-    lightRate = lightRate*2;
-    if (lightRate < 5) lightRate=5;
+  state = 1;  // Set the trigger variable, THEN attach the interrupt
+  attachInterrupt(wakePin-2,sleepInterrupt,RISING);
 
-    if (1)  // Adjust brightness.  Do it in an isolated block to save a byte
+  for (i=0;(i<time) && state;i++)
+  {
+    //attachInterrupt(wakePin-2,sleepInterrupt,RISING);
+    if ((i&15)==0)  // Sample less often to use less cpu (this loop goes so fast, it doesn't matter anyway
       {
-      byte brightness = (analogRead(rightDial)/ (ANALOG_READ_MAX/256));
-      // Deliberately only set the brightness if the dial is moved
-      // so it will be highest brightness unless explicitly adjusted.
-      if (brightness != curBrightness) brd.setBrightness(brightness);
+ 
+      if ((i&63)==0)  // Adjust brightness.  Do it in an isolated block to save a byte
+        {
+        lightRate = analogRead(leftDial);
+        lightRate = lightRate*2;
+        if (lightRate < 5) lightRate=5;
+
+        longevity = (analogRead(rightDial)*2)+1;
+        }
       }
-    
+      
     if ((i%lightRate)==0)
       {
       byte led = gerhardRand(CCShield_NUMOUTS);
-      display.set(led,gerhardRand(MaxBrightness-1),gerhardRand(MaxBrightness));
+      display.set(led,gerhardRand(CCShield_MAX_BRIGHTNESS-CCShield_MIN_INTENSITY)+CCShield_MIN_INTENSITY-1,(gerhardRand(longevity*10))+(longevity*5));
       }
     display.loop();
    }
@@ -219,6 +225,48 @@ void DelayByLeftDial()
     delay(lightRate);
 }
 
+void BrightnessTest(CCShield& brd,unsigned long int time)
+{
+  FlickerBrightness f(brd);
+  unsigned long int i;
+  
+#if 0
+  for (i=0;i<CCShield_NUMOUTS;i++)
+    {
+      f.brightness[cvt(i)]=i*3;
+    }
+#endif
+  
+  brd.setBrightness(255);  // By default highest brightness unless the dial is moved
+  
+  state = 1;  // Set the trigger variable, THEN attach the interrupt
+  attachInterrupt(wakePin-2,sleepInterrupt,RISING);
+  unsigned long int cnt=0;
+        
+  for (uint8_t j=0;j<CCShield_NUMOUTS;j++)
+        {
+        f.brightness[j] = 0;
+        }
+
+  for (i=0;(i<time) && state;i++)
+  {
+    //attachInterrupt(wakePin-2,sleepInterrupt,RISING);
+    if ((i&63)==0)
+      {
+      for (uint8_t j=0;j<CCShield_NUMOUTS;j++)
+        {
+        if ((j&3)==0) f.brightness[j]=(cnt&255);
+        //else f.brightness[j] = 0;
+        }
+        cnt+=1;
+        if ((cnt&255)==0) f.shift();
+      }
+
+    f.loop();
+  }
+  
+}
+
 void Sequence(CCShield& brd,unsigned long int time)
 {
   
@@ -276,7 +324,7 @@ void Sequence(CCShield& brd,unsigned long int time)
 }
 
  
-#define NUMMODES 3
+#define NUMMODES 4
 
 void loop()                     // run over and over again
 {
@@ -287,7 +335,7 @@ void loop()                     // run over and over again
   
   out.setBrightness(255);
   //out.set(0xffffffff,0xffffffff,0xf);
-  //delay(250);
+  delay(250);
 
   if (digitalRead(wakePin)==HIGH)  // Still held -- mode select
     {
@@ -302,6 +350,7 @@ void loop()                     // run over and over again
         }
     }
 
+  seed += analogRead(rightDial)+analogRead(leftDial);  // Try to get a random starter
   if (1)
     {  
     time = analogRead(rightDial);
@@ -313,7 +362,9 @@ void loop()                     // run over and over again
       Sequence(out,time);
     else if (i==2)
       EtchSketch(out,time);
-    //out.set(0xffffffff,0xffffffff,0xf);  /* ALL OFF */
+    else if (i==3)
+      BrightnessTest(out,time);
+    //out.set(0xffffffff,0xffffffff,0xf);  /* ALL ON */
     out.set(0,0,0);  /* ALL OFF */
     delay(500);   // Debounce reset button input
     //attachInterrupt(wakePin-2,sleepInterrupt,RISING);
