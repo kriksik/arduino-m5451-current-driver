@@ -1,0 +1,5 @@
+CCShield KEYWORD1
+FlickerBrightness KEYWORD1
+ChangeBrightness KEYWORD1
+clearbit KEYWORD2
+setbit   KEYWORD2
