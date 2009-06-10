@@ -27,7 +27,9 @@ The ground wire is *NOT* needed for normal uses like lighting LEDs.  Its only th
 
 * The BOTTOM RIGHT pin (lowest wire on the cable) is Vin POWER.
 
-* There are 3 other Power pins spaced more-or-less evenly through the cable.  I will show them as soon as I get images in this wiki!
+* There are 3 other Power pins spaced more-or-less evenly through the cable.
+
+http://code.google.com/p/arduino-m5451-current-driver/source/browse/trunk/latest/wiki/ccshield_left_ide_pinout.jpg
 
 == Right cable ==
 
