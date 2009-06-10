@@ -3,8 +3,7 @@
 = Orientation =
 For all locations described on this page, please hold the in front of you so that the M5451 chips are on the top surface and the power jack is nearest to your body.  We will call the side the power jack is on the bottom.
 
-http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/ccshield_isometric_view_parts_defined.jpg
-
+http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/CCShield_isometric_view_parts_defined.jpg
 = Jumpers =
 
 There are 2 jumpers on the board.  
