@@ -1,5 +1,7 @@
 #summary Details of the Rev 1 CCShield board
 
+[http://picasaweb.google.com/lh/photo/tw-q6GXOLNiujnELGwOiyA?feat=directlink&nonsense=foo.jpg]
+
 = Orientation =
 For all locations described on this page, please hold the in front of you so that the M5451 chips are on the top surface and the power jack is nearest to your body.  We will call the side the power jack is on the bottom.
 
