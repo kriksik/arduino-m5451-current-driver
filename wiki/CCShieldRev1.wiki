@@ -1,7 +1,5 @@
 #summary Details of the Rev 1 CCShield board
 
-[http://picasaweb.google.com/lh/photo/tw-q6GXOLNiujnELGwOiyA?feat=directlink&nonsense=foo.jpg]
-
 = Orientation =
 For all locations described on this page, please hold the in front of you so that the M5451 chips are on the top surface and the power jack is nearest to your body.  We will call the side the power jack is on the bottom.
 
@@ -31,16 +29,19 @@ The ground wire is *NOT* needed for normal uses like lighting LEDs.  Its only th
 
 * There are 3 other Power pins spaced more-or-less evenly through the cable.
 
-http://code.google.com/p/arduino-m5451-current-driver/source/browse/trunk/latest/wiki/ccshield_left_ide_pinout.jpg
+http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/ccshield_left_ide_pinout.jpg
+*In this pinout, WHITE is GROUND and RED is power* 
 
 == Right cable ==
 
-The right cable is the exact reverse of the left:
+The right cable is the exact 180 degree rotation of the left (so that the IDE cable heads away from the board):
 
 * The UPPER LEFT pin (topmost wire on the cable) is Vin POWER.
 
 * The BOTTOM RIGHT pin (lowest wire on the cable) is GROUND.  *DO NOT USE FOR LED APPLICATIONS*
 
+http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/ccshield_right_ide_pinout.jpg
+*In this pinout, WHITE is GROUND and RED is power*
 
 = Miscellaneous =
 
