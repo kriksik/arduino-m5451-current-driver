@@ -24,7 +24,7 @@
 #define M5451_NUMOUTS 35
 #define CCShield_NUMOUTS 70
 #define M5451_CLK 1L
-
+#define CCShield_FASTSET 1
 
 // Maximum number of gradations of brightness
 #define CCShield_MAX_BRIGHTNESS 256
@@ -41,6 +41,8 @@
 class CCShield
  {
   public:
+  // Safe set or Fast set?
+  uint8_t flags;
   // What pin to use to as the M5451 clock (any digital pin can be selected on the board by solder blob short)
   uint8_t clockPin;
   // What pin to use to to control brightness (any digital pin can be selected on the board by solder blob short)
@@ -53,13 +55,27 @@ class CCShield
   // Constructor takes all of the pins needed.
   CCShield(uint8_t clockPin,uint8_t serDataPin1,uint8_t serDataPin2,uint8_t brightPin);
   
-  // Turn on/off certain lines.
+  // Turn on/off certain lines, using direct register access -- may not work on Arduino variants!
   // Parameters a,b,c are a bitmap; each bit corresponds to a particular M5451 output
   // The first 70 bits are used (i.e. all of parameter a and b, and just a few bits in parameter c
   void set(unsigned long int a, unsigned long int b, unsigned long int c);
       
   // The same set function conveniently taking an array
   void set(unsigned long int a[3]);
+
+  // Turn on/off certain lines, using direct register access -- may not work on Arduino variants!
+  // Parameters a,b,c are a bitmap; each bit corresponds to a particular M5451 output
+  // The first 70 bits are used (i.e. all of parameter a and b, and just a few bits in parameter c
+  void fastSet(unsigned long int a, unsigned long int b, unsigned long int c);
+      
+  // The same set function conveniently taking an array
+  void fastSet(unsigned long int a[3]);
+
+  // Turn on/off certain lines, using digitalWrite.
+  // Parameters a,b,c are a bitmap; each bit corresponds to a particular M5451 output
+  // The first 70 bits are used (i.e. all of parameter a and b, and just a few bits in parameter c
+  void safeSet(unsigned long int a, unsigned long int b, unsigned long int c);
+  void safeSet(unsigned long int a[3]);
   
   // Set the overall brightness using the M5451 brightness selection (assuming its under software control)
   void setBrightness(uint8_t b);
