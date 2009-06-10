@@ -54,3 +54,7 @@ There is a 2.2KOhm resistor on the board that selects the max current flowing th
 Note that the M5451 chip can dissipate 1 Watt at 25 Celsius, so you must work within this limit.  For example let's say that you are putting 5V across the circuit, and the LEDs use 3V.  This means that 2V will be dissipated in the chip (5 minus 3).  At 10mA current, this is 20mW per line (power = volts*amps) or 20*35 LEDs = 700mW total dissipated in the chip.  So you are ok.  But if you used 20mA current, you would have 1.4Watts when all the LEDs are lit.  Not so good.  
 
 However, there is more than one way to fix the problem. First, if only half of the LEDs are simultaneously on (maybe your application blinks them), then you are back to 700mW so are ok.  Or maybe you could install a heat sink onto the M5451 chip and do some testing to ensure you don't start a fire :-).
+
+= Board Layout =
+
+http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/ccshield_board.jpg
