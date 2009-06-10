@@ -137,7 +137,7 @@ void FlickerBrightness::loop(void)
 CCShield::CCShield(uint8_t clkPin, uint8_t dataPin1, uint8_t dataPin2, uint8_t brightnessPin)
 {
   int i;
-  
+  flags = 0;
   clockPin = clkPin;
   serDataPin[0] = dataPin1;
   serDataPin[1] = dataPin2;
@@ -174,16 +174,29 @@ int CCShield::mydelay(unsigned long int clk)
   return j;
 }
 
-
 void CCShield::set(unsigned long int a, unsigned long int b, unsigned long int c)
 {
   unsigned long int data[3];
   data[0] = a; data[1]=b; data[2]=c;
-  set(data);
+  if (flags&CCShield_FASTSET) fastSet(data);
+  else safeSet(data);
 }
 
-#if 1
 void CCShield::set(unsigned long int a[3])
+{
+  if (flags&CCShield_FASTSET) fastSet(a);
+  else safeSet(a);
+
+}
+
+void CCShield::fastSet(unsigned long int a, unsigned long int b, unsigned long int c)
+{
+  unsigned long int data[3];
+  data[0] = a; data[1]=b; data[2]=c;
+  fastSet(data);
+}
+
+void CCShield::fastSet(unsigned long int a[3])
 {
   uint8_t i;
 
@@ -270,11 +283,17 @@ void CCShield::set(unsigned long int a[3])
     PORTD |= hiclk; 
     //mydelay(M5451_CLK);
   }
-  
-
 }
-#else
-void CCShield::set(unsigned long int a[3])
+
+
+void CCShield::safeSet(unsigned long int a, unsigned long int b, unsigned long int c)
+{
+  unsigned long int data[3];
+  data[0] = a; data[1]=b; data[2]=c;
+  safeSet(data);
+}
+
+void CCShield::safeSet(unsigned long int a[3])
 {
   int i;
 
@@ -319,4 +338,4 @@ void CCShield::set(unsigned long int a[3])
     digitalWrite(clockPin,LOW);
   }
 }
-#endif
+
