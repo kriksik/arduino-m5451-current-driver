@@ -4,7 +4,10 @@
 
 Are you using a DC "wall-wart" transformer?  Those are *unregulated* power supplies!  The voltage printed on them is the mininum voltage.  Check the voltage with a voltmeter and make sure that it is less than the M5451 maximum of 13 volts!
 
-To solve this problem use a different transformer, or feed the power into a voltage regulator chip first.
+To solve this problem use a different transformer, feed the power into a voltage regulator chip first, or use a regulated power supply, for example:
+http://www.dipmicro.com/store/index.php?act=viewCat&catId=115
+
+Note though that you may have permanently damaged the M5451 chip, you may need to replace it.
 
 == When I turn on all LEDs on multiple M5451 chips, lots of them suddenly turn off  ==
 
