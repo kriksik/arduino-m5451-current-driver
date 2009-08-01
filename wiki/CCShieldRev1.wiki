@@ -30,6 +30,8 @@ The ground wire is *NOT* needed for normal uses like lighting LEDs.  Its only th
 
 * There are 3 other Power pins spaced more-or-less evenly through the cable.
 
+* The LEDs count from the bottom of the cable (ie. writing the lowest bit (1) into the set function will activate the bottom left pin.  
+
 http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/ccshield_left_ide_pinout.jpg
 *In this pinout, WHITE is GROUND and RED is power* 
 
@@ -40,6 +42,10 @@ The right cable is the exact 180 degree rotation of the left (so that the IDE ca
 * The UPPER LEFT pin (topmost wire on the cable) is Vin POWER.
 
 * The BOTTOM RIGHT pin (lowest wire on the cable) is GROUND.  *DO NOT USE FOR LED APPLICATIONS*
+
+* The LEDs count from the top of the cable (ie. writing the lowest bit (a 1) into the set function will activate the upper right pin.  Writing 0x2 will activate the left pin on the second row, a 0x4 the right pin second row, and so on.  If you want to make sure you have the pins correct, just turn one on using the "set" function.  Then set you multimeter to measure current -- around 50mA.  Next put the + probe on the end of the power jack and start touching pins with the - probe, but of course MAKE SURE YOU DONT TOUCH THE ONE GROUND PIN (well its not so bad, worst case just burn out your wall wart, but most likely the wall wart is internally protected against overdriving).
+
+* Whether the right cable start at bit 0 or at bit 35 (and so the left starts at 0) depends on which data line they connect to and how the CCShield class is initialized.  If its backwards, just switch the 2 "data" line numbers in the CCShield constructor! 
 
 http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/ccshield_right_ide_pinout.jpg
 *In this pinout, WHITE is GROUND and RED is power*
