@@ -339,3 +339,28 @@ void CCShield::safeSet(unsigned long int a[3])
   }
 }
 
+void LedAnimation::next(void)
+{
+  unsigned long int bits[3];
+
+  bits[0] = pgm_read_dword_near(ani + curFrame);
+  bits[1] = pgm_read_dword_near(ani + curFrame+4);
+  bits[2] = pgm_read_byte_near(ani + curFrame+8);
+  shield.set(bits);
+  int d = pgm_read_word_near(delays + curDelay);
+  delay(d);
+      
+  curFrame+=(anidir*9);
+  curDelay+=anidir;
+
+  if (curDelay >= numFrames) 
+    { 
+    if (flags&1) { anidir = -1; curDelay=numFrames-2; curFrame = (numFrames-2)*9; }
+    else { curFrame=0; curDelay=0; }    
+    }
+  else if (curDelay < 0)
+  {
+    if (flags&1) { anidir = 1; curDelay=1; curFrame = 9; }
+    else { curDelay=numFrames-1; curFrame=(numFrames-1)*9; }    
+  }
+}

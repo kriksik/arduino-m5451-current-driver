@@ -19,6 +19,7 @@
 #define CCSHIELD_H
 
 //#include "WConstants.h"
+#include "avr/pgmspace.h"
 #include <inttypes.h>
 
 #define M5451_NUMOUTS 35
@@ -149,4 +150,24 @@ class ChangeBrightness
   void (*doneCall)(ChangeBrightness& me, int led);
 };
 
+class LedAnimation
+{
+  public:
+  LedAnimation(CCShield& shld, prog_uchar* anim,prog_uint16_t* delayLst, int total_frames): shield(shld) {flags=0; delays=delayLst; ani=anim; numFrames=total_frames; curFrame=0; curDelay=0; anidir=1;}
+
+  CCShield& shield;
+  int curFrame;
+  int curDelay;
+  int numFrames;
+  int anidir;
+  uint8_t flags;
+  prog_uchar* ani;
+  prog_uint16_t* delays;
+  
+  void setBackForth(uint8_t yes=1) { if (yes) flags |= 1; else flags &= ~1; }
+  void setReverse(uint8_t yes =1) { if (yes) anidir = -1; else anidir = 1; }
+  
+  void setPos(int i) { if (i<numFrames) curFrame = i;}
+  void next(void);
+};
 #endif
