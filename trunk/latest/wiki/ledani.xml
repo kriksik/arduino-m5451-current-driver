@@ -65,6 +65,7 @@ function BuildLedCode(input,outputLoc)
  outputLoc.innerHTML = ccode;
  return false;
 }
+//]]>
 </script>
 <style type='text/css'>
 #nothing {}
