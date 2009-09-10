@@ -6,11 +6,11 @@
 <script language='JavaScript'>
 function genCcode(lst,name)
 {
-result = "prog_uchar " + name + "[] PROGMEM = {";
+var result = "prog_uchar " + name + "[] PROGMEM = {";
 
 for(var i = 0;i < lst.length-1;i++) 
 {
-result += lst[i];
+  result += lst[i].toString();
 result += ",";
 }
 
@@ -24,9 +24,10 @@ function BuildLedCode(input,outputLoc)
 {
   //outputLoc.innerHTML = input;
   //alert(outputLoc);
+  var debug = "";
   var sa = input.split("\n");
-  var result = [];
-  var delays = [];
+  var result = new Array();
+  var delays = new Array();
   var nFrames = 0;
   for(var line = 0;line < sa.length;line++) {
     //print("[" + sa[line] + "]\r\n");
@@ -35,40 +36,48 @@ function BuildLedCode(input,outputLoc)
     nFrames +=1;
     delay = s[0];
     rest = s[1];
-    rest = rest.replace(/[^*.]/g, "");
-    delays += [delay]
-    //print (delay);
-    //print ("rest");
-    //print (rest);
-    //print ("\n");
-    val = 0;
+    rest = rest.replace(/[^*_.0]/g, "");
+    delays.push(delay);
+
+    var val = 0;
     for(var i=0;i<70; i++)
       {
         val*=2;
-        if ((i<rest.length)&&(rest[i] == "*")) val+=1;
+        if ((i<rest.length)&&(rest[i] == "*")) 
+          {val+=1;
+            debug += "Light! " + i + "\n";
+          }
         if ((i%8)==7)
           {
             //print("Value is: 0x" + val.toString(16) + "\n");
-            result += [val];
+            debug += i + " : " + val + "\n";
+            result.push(val);
+            
             val=0;
           }
       }
     //print("Value is z: 0x" + val.toString(16)+ "\n");
-    result += [val];
+    result.push(val);
 
   }
 
+  debug += result;
+for(var i = 0;i < result.length;i++) 
+{
+  debug += result[i].toString();
+  debug += ",";
+}
  ccode = genCcode(result,"leds") + "\n";
  ccode += genCcode(delays,"delays")+ "\n";
  ccode += "int numFrames = " + nFrames + ";\n";
  //print (ccode);
- outputLoc.innerHTML = ccode;
+ outputLoc.innerHTML = ccode; //+ "\n" + debug;
  return false;
 }
 </script>
 <style type='text/css'>
 #nothing {}
-</style></head><body><form action="action" method="POST" name="ledCodeGenForm" enctype="multipart/form-data">Paste your animation definition here:<br/><TextArea ROWS="10" name="anidef" COLS="70"></TextArea><br/><input onClick="return BuildLedCode(document.ledCodeGenForm.anidef.value,document.getElementById('code'));" type="submit" name="Generate" value="Generate" /></form><br/>Code:<pre id="code"></pre>
+</style></head><body><form action="action" method="POST" name="ledCodeGenForm" enctype="multipart/form-data">Paste your animation definition here:<br/><TextArea ROWS="10" name="anidef" COLS="90"></TextArea><br/><input onClick="return BuildLedCode(document.ledCodeGenForm.anidef.value,document.getElementById('code'));" type="submit" name="Generate" value="Generate" /></form><br/>Code:<pre id="code"></pre>
      ]]>
   </Content> 
 </Module>
