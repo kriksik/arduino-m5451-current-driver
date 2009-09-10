@@ -1,0 +1,22 @@
+#summary LED animation generator
+
+= Introduction =
+
+
+== Example ==
+{{{
+500: *******,*******,*******,*******,******* *******,*******,*******,*******,*******
+400: ***_***,***_***,***_***,***_***,***_*** ***_***,***_***,***_***,***_***,***_***
+300: **___**,**___**,**___**,**___**,**___** **___**,**___**,**___**,**___**,**___** 
+200: *_____*,*_____*,*_____*,*_____*,*_____* *_____*,*_____*,*_____*,*_____*,*_____*
+100: _______,_______,_______,_______,_______ _______,_______,_______,_______,_______ 
+}}}
+
+= Details =
+
+<wiki:gadget url="http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/ledani.xml" height="400" width="800" border="5" /> 
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
