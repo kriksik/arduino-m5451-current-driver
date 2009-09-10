@@ -1,9 +1,74 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
 <Module>
-  <ModulePrefs title="hello world example" /> 
+  <ModulePrefs title="LED Animation Code Generator" height="600" /> 
   <Content type="html">
      <![CDATA[ 
-       Hello, world!
+<script language='JavaScript'>
+function genCcode(lst,name)
+{
+result = "prog_uchar " + name + "[] PROGMEM = {";
+
+for(var i = 0;i < lst.length-1;i++) 
+{
+result += lst[i];
+result += ",";
+}
+
+result += lst[lst.length-1];
+result += " };";
+
+return result;
+}
+
+function BuildLedCode(input,outputLoc)
+{
+  outputLoc.innerHTML = input;
+  alert(outputLoc);
+  var sa = input.split("\n");
+  var result = [];
+  var delays = [];
+  var nFrames = 0;
+  for(var line = 0;line < sa.length;line++) {
+    //print("[" + sa[line] + "]\r\n");
+    var s = sa[line].split(":");
+    if (s.length != 2) continue;
+    nFrames +=1;
+    delay = s[0];
+    rest = s[1];
+    rest = rest.replace(/[^*.]/g, "");
+    delays += [delay]
+    //print (delay);
+    //print ("rest");
+    //print (rest);
+    //print ("\n");
+    val = 0;
+    for(var i=0;i<70; i++)
+      {
+        val*=2;
+        if ((i<rest.length)&&(rest[i] == "*")) val+=1;
+        if ((i%8)==7)
+          {
+            //print("Value is: 0x" + val.toString(16) + "\n");
+            result += [val];
+            val=0;
+          }
+      }
+    //print("Value is z: 0x" + val.toString(16)+ "\n");
+    result += [val];
+
+  }
+
+ ccode = genCcode(result,"leds") + "\n";
+ ccode += genCcode(delays,"delays")+ "\n";
+ ccode += "int numFrames = " + nFrames + ";\n";
+ //print (ccode);
+ outputLoc.innerHTML = ccode;
+ return false;
+}
+</script>
+<style type='text/css'>
+#nothing {}
+</style></head><body><form action="action" method="POST" name="ledCodeGenForm" enctype="multipart/form-data">Paste your animation definition here:<br/><TextArea ROWS="10" name="anidef" COLS="70"></TextArea><br/><input onClick="return BuildLedCode(document.ledCodeGenForm.anidef.value,document.getElementById('code'));" type="submit" name="Generate" value="Generate" /></form><br/>Code:<pre id="code"></pre>
      ]]>
   </Content> 
 </Module>
