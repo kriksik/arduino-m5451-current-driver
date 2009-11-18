@@ -13,66 +13,86 @@ The purpose of the board is to expand the number of outputs available to the Ard
  * LED coffee tables
 
 = Orientation =
-For all locations described on this page, please hold the in front of you so that the M5451 chips are on the top surface and the power jack is farthest from your body (and the silkscreen is right-side up).  We will call the side the power jack is on the top.
+For all locations described on this page, please hold the board in front of you so that the M5451 chips are on the top surface and the power jack is farthest from your body (and the silkscreen is right-side up).  We will call the side the power jack is on the top.
 
-http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/CCShield_isometric_view_parts_defined.jpg
-= Jumpers =
+IDE cable pin numbers on both cables start from the bottom right (it is marked "1") and go to pin 40.  All location descriptions refer to the LEFT IDE cable.  To find the pin on the RIGHT side, just "flip" the top and bottom pins -- * Note: its nice to use a meter to be sure! *
 
-There are 2 jumpers on the board.  
+http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/Lightuino20_fully_pop_isometric_annotated.png
 
-== Power ==
-The Power jumper has just 2 pins.  If it is closed, Vin power is shared between the CCShield and the Arduino.  Vin is *NOT* 5 volts, it is whatever is coming in from the power jack.
+= Configuration =
 
-== Brightness Selection ==
-The brightness selection jumper has 3 pins.  If the jumper shorts the right pin (farthest from the IDE connector) and the middle pin, brightness is set by the value of the resistor and the value of Vin.  If the jumper is shorting the middle and the left pin, brightness is selected by the one of the Arduino digital IOs (whichever is selected by the solder blob on the back of the board) and the resistor value.  If the jumper is off, no LEDs will light!
+== Jumpers ===
+There are several jumpers on the board:
+
+ * SRC5V: If this jumper shorts the top and middle (as shown) 5V power (CPU power) comes from the DC jack.  If the jumper shorts the middle and bottom, then 5V comes from the FTDI cable.  If the jumper is removed, power must be supplied via the Arduino pin.
+ * VPASS: This 5 pin header provides several functions.
+  ** If this jumper shorts the left 2 pins (as shown), then power is shared between this board AND and Arduino Header's Vin pin.  This allows you to use a single wall-wart for multiple stacked boards.  
+  ** If a jumper shorts pins 3 and 4 (from the left) then the GND signal is carried out to the IDE cables, pin 40 (top of the board the bottom pin).
+  ** Pin 5 (farthest to the right) is provided for you to send a custom signal or voltage out the IDE cables.  This voltage will be on IDE cable pin 36 (third from the top of the board, bottom pin).
+ * JBRI: If the jumper shorts the bottom and middle pin, overall brightness is controlled solely by the trim pots (as shown).  If the jumper shorts the top and middle pin, overall brightness can be software controlled by a PWM pin.  If the jumper is off, no LEDs will light!
+
+
+
+== Headers ==
+
+ * ICSP: The ICSP header is used to program the boot image, just like on an Arduino.  Pin 1 is on the bottom right.
+
+ * FTDI: Sketches are programmed via an FTDI cable, connected to these pins.  The BLACK FTDI wire should be on the LEFT the GREEN on the right (as marked on the board).  You may purchase an FTDI cable here (among other places): http://www.adafruit.com/index.php?main_page=product_info&products_id=70
+
+== Potentiometers (VSEL and VTRIM) ==
+
+ * VSEL: This potentiometer controls the voltage level expressed on the VCC pin (37, or top pin, 2nd from the top of the board) of the IDE cables.  The voltage can range from 0 to whatever your DC wall wart is providing (up to a max of about 20 volts).
+
+ * VTRIM: These 2 potentiometers adjust the brightness (i.e. current) output on the left and right IDE cables respectively.  Generally they are used to match the sides so that the exact same intensities are generated.  However you can set them differently to generate different intensities per side.  Note that you may also use the provided library to implement software PWM to individually control brightness.
+
+
+== VDIV footprint ==
+
+If you need to implement a voltage divider connected to your analog pins, these resistor footprints do the trick.  They bridge 5V and the analog pins.  Also just above each analog pin is a footprint for a set of ground connections, for easy connection of the variable half of the voltage divider.
+
+== PINSEL ==
+
+The pin select footprint lets you choose which digital IOs control the LEDs.  The top footprint holes correspond to the left side data pin, the clock pin, the right side data pin, and the brightness pin (as marked).  The bottom footprint holes correspond to digital IOs 0 through 13 moving from left to right.
+
+To use the M5451 chips, you must solder wires between a hole on the lower bank to a hole in the upper bank (if it is not already done). *Make sure your wire does not short against a via on the board!*
+
+If you do not care which pins, then I recommend you use pin 3 to the "clock", pin 4 to the "left", pin 5 to the "right", and finally pin 10 to "bright".  You will need to enter this information into your sketch so it knows what pins to use. 
+
+= RESET =
+
+The reset button is located on the top as shown.  Please click the reset button EXACTLY when the Arduino IDE prints the "sketch size..." log.  It is very easy to press the button too early or late, which will cause the sketch to not be uploaded!
+
+= LEDS =
+
+ * The rightmost LED indicates 5v power (CPU power).
+ * The leftmost LED is the pin 13 LED used in a lot of sketches like the "blink" sketch.  It will also flicker rapidly when a sketch is being downloaded.
 
 = IDE cable pinout =
 
-The left and right IDE cable pinouts are rotated 180 degrees.  This is so both IDE cables fan out AWAY from the board when plugged in.
+The left and right IDE cable pinouts are exactly the same on the circuit board.  But since the header does a right angle turn to leave the board on the side, a pin on the top of the left side is on the bottom on the right, and vice versa.
 
-Each cable has 35 connections for LEDs, 4 power wires, and 1 ground wire. Generally you want to connect the LED from one of the power wires to one of the 35 connections.  You can connect lots of LEDs to the same power wire, which is why only 4 are provided.
+For example, pin 40 (the GND pin) on the circuitboard is on the upper left corner.  On the left side then corresponds to the top row, bottom pin.  On the right side this is the top row, top pin.
 
-The ground wire is *NOT* needed for normal uses like lighting LEDs.  Its only there in case you are interfacing to other chips, etc.  In fact accidently connecting an LED directly from one of the power lines to the ground line will burn the LED out so it is recommended that you mark the ground line specially by coloring it on the IDE cable with a pen.
-
-== Left cable ==
-
-* The UPPER LEFT pin (topmost wire on the cable) is GROUND.  *DO NOT USE FOR LED APPLICATIONS*
-
-* The BOTTOM RIGHT pin (lowest wire on the cable) is Vin POWER.
-
-* There are 3 other Power pins spaced more-or-less evenly through the cable.
-
-* The LEDs count from the bottom of the cable (ie. writing the lowest bit (1) into the set function will activate the bottom left pin.  
-
-http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/ccshield_left_ide_pinout.jpg
-*In this pinout, WHITE is GROUND and RED is power* 
-
-== Right cable ==
-
-The right cable is the exact 180 degree rotation of the left (so that the IDE cable heads away from the board):
-
-* The UPPER LEFT pin (topmost wire on the cable) is Vin POWER.
-
-* The BOTTOM RIGHT pin (lowest wire on the cable) is GROUND.  *DO NOT USE FOR LED APPLICATIONS*
-
-* The LEDs count from the top of the cable (ie. writing the lowest bit (a 1) into the set function will activate the upper right pin.  Writing 0x2 will activate the left pin on the second row, a 0x4 the right pin second row, and so on.  If you want to make sure you have the pins correct, just turn one on using the "set" function.  Then set you multimeter to measure current -- around 50mA.  Next put the + probe on the end of the power jack and start touching pins with the - probe, but of course MAKE SURE YOU DONT TOUCH THE ONE GROUND PIN (well its not so bad, worst case just burn out your wall wart, but most likely the wall wart is internally protected against overdriving).
-
-* Whether the right cable start at bit 0 or at bit 35 (and so the left starts at 0) depends on which data line they connect to and how the CCShield class is initialized.  If its backwards, just switch the 2 "data" line numbers in the CCShield constructor! 
-
-http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/ccshield_right_ide_pinout.jpg
-*In this pinout, WHITE is GROUND and RED is power*
+ * Pin 40 GND Pin:  This pin is ground IF the appropriate VPASS jumper is closed.  Otherwise it is unused.
+ * Pin 39 Vin Pin:  This is the raw voltage coming from the wall wart.  Only use this pin if you are using too much power for the voltage regulator to handle.
+ * Pin 38 5V Pin: This pin provides 5 volts.  Use this pin to drive logic.
+ * Pin 37 VSEL Pin: This pin provides whatever voltage is selected via the VSEL variable resistor.  If in doubt, use THIS pin to drive your LEDs, etc.
+ * Pin 36 ANY Pin: This pin can be used for anything; it is exposed on the rightmost pin of the VPASS header (on the board "IDEVSEL S1" is silkscreened next to it).
+ * Pin 35 - Pin 1: These are the individually controllable constant current sink pins.  Connect your load from one of the voltage pins described above to one of these pins.
 
 = Miscellaneous =
 
 
 == Brightness ==
 
-There is a 2.2KOhm resistor on the board that selects the max current flowing through each LED to about 15mA.  You can change the LED brightness by changing this resistor higher to dim the LED and lower to brighten it. 
-
 Note that the M5451 chip can dissipate 1 Watt at 25 Celsius, so you must work within this limit.  For example let's say that you are putting 5V across the circuit, and the LEDs use 3V.  This means that 2V will be dissipated in the chip (5 minus 3).  At 10mA current, this is 20mW per line (power = volts*amps) or 20*35 LEDs = 700mW total dissipated in the chip.  So you are ok.  But if you used 20mA current, you would have 1.4Watts when all the LEDs are lit.  Not so good.  
 
-However, there is more than one way to fix the problem. First, if only half of the LEDs are simultaneously on (maybe your application blinks them), then you are back to 700mW so are ok.  Or maybe you could install a heat sink onto the M5451 chip and do some testing to ensure you don't start a fire :-).
+However, there is more than one way to fix the problem. First, you can change the VSEL pot to adjust the input voltage.  Second, if only half of the LEDs are simultaneously on (maybe your application blinks them), then you are back to 700mW so are ok.  But of course this means a bug in your program might cause all the LEDs to turn on and the chip to burn out...  Or maybe you could install a heat sink onto the M5451 chip and do some testing to ensure you don't start a fire :-).
+
+= CPU Components Only =
+
+http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/Lightuino20_CPU_only.jpg
 
 = Board Layout =
 
-http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/ccshield_board.jpg
+http://arduino-m5451-current-driver.googlecode.com/svn/trunk/latest/wiki/Lightuino20_circuitboard.png
