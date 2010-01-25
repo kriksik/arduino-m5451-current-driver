@@ -1,0 +1,112 @@
+#summary The Lightuino comes with the following default sketch
+
+This is some details of the sketch that is shipped with every Lightuino.
+
+= Description =
+
+This sketch does a basic light test (individually turns on each line) and then it runs thru some animations.  It also prints to the serial line so you can see which part of the sketch corresponds to which animation.
+
+= Source Location =
+
+[http://code.google.com/p/arduino-m5451-current-driver/source/browse/trunk/latest/apps/lightuino_animations/applet/lightuino_animations.cpp]
+
+= Serial Output =
+
+<pre>
+Lightuino library development test v1.0
+Say hi
+Start countdown
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+Light Check
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+DoubleRollChaser
+Opposite RollChaser
+Cross
+Ani
+  Wiper
+  Sweep
+  Marquee to 2 centers
+DoubleRollChaser with other lit LEDs
+Marquee
+IntensityRotater
+
+</pre>
+Then it repeats
