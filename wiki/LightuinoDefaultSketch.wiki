@@ -6,6 +6,13 @@ This is some details of the sketch that is shipped with every Lightuino.
 
 This sketch does a basic light test (individually turns on each line) and then it runs thru some animations.  It also prints to the serial line so you can see which part of the sketch corresponds to which animation.
 
+You can tell that this sketch is running by looking at the Lightuino's LED right after pressing the reset button.  The LED will first flash a few times, pause and flash a few more times.  This is the boot rom.  
+
+Next it will load the sketch.  This sketch will flash the LED 10 times starting rapidly and getting slower and slower.  This is very different than the boot rom which flashes in clusters of equal time pulses. So is easy to tell that the Lightuino sketch is running.  
+
+Also, when the Lightuino sketch finishes its sequence (about a minute), it loops back and flashes the LED in this pattern again (but the boot rom LED sequence will NOT run).  This is another way to verify that the default sketch is running.
+
+
 = Source Location =
 
 [http://code.google.com/p/arduino-m5451-current-driver/source/browse/trunk/latest/apps/lightuino_animations/applet/lightuino_animations.cpp]
