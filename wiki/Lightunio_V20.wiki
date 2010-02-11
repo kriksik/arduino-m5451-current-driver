@@ -80,6 +80,36 @@ For example, pin 40 (the GND pin) on the circuitboard is on the upper left corne
  * Pin 36 ANY Pin: This pin can be used for anything; it is exposed on the rightmost pin of the VPASS header (on the board "IDEVSEL S1" is silkscreened next to it).
  * Pin 35 - Pin 1: These are the individually controllable constant current sink pins.  Connect your load from one of the voltage pins described above to one of these pins.
 
+In code,
+{{{
+// A nice little PIN identifier sketch.  It assigns the extreme 4 pins (2 on each side)
+// different values.  Hook a multimeter up in series with an LED and measure the current
+// flowing through when the LED is connected to each pin.  You will see different currents
+// on each pin.  
+
+// You can use the same technique to find pins in the middle of the connector!
+
+CCShield board(myClockPin,mySerDataPin,mySerDataPin2, myBrightnessPin);   
+FlickerBrightness leds(board);
+
+void loop() 
+  {
+  board.flags = Lightuino_FASTSET;
+  
+  while (1)
+  {
+  leds.brightness[0] = 32;      // This is the near side top pin on the LEFT connector
+  leds.brightness[34] = 64;     // This is 2-from-the-far side top pin on the LEFT connector
+  leds.brightness[35] = 127;    // This is the near side bottom pin on the RIGHT IDE connector  
+  leds.brightness[69] = 255;    // This is 2-from-the-far side bottom pin on the RIGHT IDE connector
+  for (int i=0;i<10;i++) leds.loop();
+  //delay(100);
+  }
+}
+
+}}}
+*Note, sometimes the IDE cable will reverse what is bottom and top, so while the code comments are accurate for your connector they may not be accurate for the output of the IDE cable.  Just experiment!*
+
 = Miscellaneous =
 
 
