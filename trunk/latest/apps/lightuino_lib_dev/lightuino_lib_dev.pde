@@ -1,3 +1,5 @@
+// I use this project to test and develop the lightuino library itself.
+// It is probably not that interesting to you unless you are hacking the library.
 
 #include "./lightuino.h"
 #include "avr/pgmspace.h"
@@ -171,12 +173,40 @@ void FlickerRoll(FlickerBrightness& flk)
   }
 }
 
+void TestByteSet(Lightuino& board)
+{
+    for (int i=0;i<30;i++)
+    {
+    Serial.println("Turn on every other LED");
+    
+    // Each bit (1 or 0) in this array corresponds to one LED light
+    byte ledState[9] = {B10101010,B10101010,B10101010,B10101010,B10101010,B10101010,B10101010,B10101010,B10101010};
+     
+    // Now send it to the chips.
+    board.set(ledState);  
+      
+    delay(250);
+  
+    Serial.println("Now put in the opposite pattern");
+    // Now set up another pattern
+    for (int j=0;j<9;j++) ledState[j] = B01010101;
+    
+    // Now send it to the chips.
+    board.set(ledState);  
+      
+    delay(250);
+    }
+
+}
+
 void loop()
 {
    Lightuino out(myClockPin,mySerDataPin,mySerDataPin2, myBrightnessPin);
    out.flags |= Lightuino_FASTSET;  // fast set relies on AVR registers not digitalWrite, so may not work on some Arduino variants.
    out.flags |= Lightuino_BY32;
 
+
+   TestByteSet(out);
 
    Serial.println("RunThru");
    RunThru(out);
