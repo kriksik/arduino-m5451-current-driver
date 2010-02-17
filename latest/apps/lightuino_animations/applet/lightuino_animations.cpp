@@ -6,10 +6,10 @@
 void mydelay(int amt);
 void setup();
 void loop();
-int myClockPin =     3; //6;                // Arduino pin that goes to the clock on all M5451 chips
+int myClockPin =     6; //6;                // Arduino pin that goes to the clock on all M5451 chips
 int mySerDataPin =   5; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
-int mySerDataPin2 =  2; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin = 11;          // What Arduino pin goes to the brightness ping on the M5451s
+int mySerDataPin2 =  7; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myBrightnessPin = 10;          // What Arduino pin goes to the brightness ping on the M5451s
 int ledPin = 13;  // The normal arduino example LED
 
 /* Do a delay, but also wait for user input if a global var is set */

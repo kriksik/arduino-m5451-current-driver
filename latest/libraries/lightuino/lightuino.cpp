@@ -138,7 +138,7 @@ void FlickerBrightness::loop(void)
 Lightuino::Lightuino(uint8_t clkPin, uint8_t dataPin1, uint8_t dataPin2, uint8_t brightnessPin)
 {
   int i;
-  flags = 0;
+  flags = Lightuino_FASTSET;
   clockPin = clkPin;
   serDataPin[0] = dataPin1;
   serDataPin[1] = dataPin2;
@@ -186,6 +186,21 @@ void Lightuino::set(unsigned long int a, unsigned long int b, unsigned long int 
     }
   else safeSet(data);
 }
+
+void Lightuino::set(unsigned char* a)
+{
+  unsigned long int data[3];
+  data[0] = *((unsigned long int*) a); 
+  data[1]=*((unsigned long int*) (a+4)); 
+  data[2]= a[8];
+  if (flags&Lightuino_FASTSET)
+    {
+    if (flags&Lightuino_BY32) fastSetBy32(data);
+    else fastSet(data);
+    }
+  else safeSet(data);
+}
+
 
 void Lightuino::set(unsigned long int a[3])
 {
