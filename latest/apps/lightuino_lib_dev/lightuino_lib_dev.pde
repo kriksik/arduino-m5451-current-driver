@@ -5,41 +5,11 @@
 #include "avr/pgmspace.h"
 
 
-int myClockPin =     3; //6;                // Arduino pin that goes to the clock on all M5451 chips
+int myClockPin =     6; //6;                // Arduino pin that goes to the clock on all M5451 chips
 int mySerDataPin =   5; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
-int mySerDataPin2 =  2; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin = 11;          // What Arduino pin goes to the brightness ping on the M5451s
+int mySerDataPin2 =  7; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myBrightnessPin = 10;          // What Arduino pin goes to the brightness ping on the M5451s
 int ledPin = 13;  // The normal arduino example LED
-
-#define TIMER_CLOCK_FREQ (16000000.0/128.0) //2MHz for /8 prescale from 16MHz
-
-// Code from: http://www.uchobby.com/index.php/2007/11/24/arduino-interrupts/
-// Setup Timer2.
-//Configures the ATMegay168 8-Bit Timer2 to generate an interrupt at the specified frequency.
-//Returns the time load value which must be loaded into TCNT2 inside your ISR routine.
-//See the example usage below.
-unsigned char SetupTimer2(float timeoutFrequency)
-{
-  unsigned char result; //The value to load into the timer to control the timeout interval.
-
-  //Calculate the timer load value
-  result=(int)((257.0-(TIMER_CLOCK_FREQ/timeoutFrequency))+0.5); //the 0.5 is for rounding;
-  //The 257 really should be 256 but I get better results with 257, dont know why.
-
-  //Timer2 Settings: Timer Prescaler /8, mode 0
-  //Timmer clock = 16MHz/8 = 2Mhz or 0.5us
-  //The /8 prescale gives us a good range to work with so we just hard code this for now.
-  TCCR2A = 0;
-  TCCR2B = 1<<CS22 | 0<<CS21 | 1<<CS20; 
-
-  //Timer2 Overflow Interrupt Enable   
-  TIMSK2 = 1<<TOIE2;
-
-  //load the timer for its first cycle
-  TCNT2=result; 
-  
-  return(result);
-}
 
 
 #define TOGGLE_IO 13
@@ -80,7 +50,7 @@ void setup()
   //Start the timer and get the timer reload value.
   //timerLoadValue=SetupTimer2(4*8192); //1000); //44100);  
   //Signal the program start
-  Serial.println("Lightuino library development test v1.0");
+  Serial.println("Lightuino library development test v2.0");
 }
 
 void RunThru(Lightuino& out)
@@ -136,29 +106,47 @@ void TestTimer(Lightuino& board)
   int j;
   int k;
   int repeats;
+  Lightuino board2(2,4,8, 10);   
+  
   FlickerBrightness leds(board);
+  FlickerBrightness leds2(board2);
+  leds.next = &leds2;
+  
   //gleds = &leds;
   leds.StartAutoLoop();
   
   for (j=0;j<200;j++)
   {
-  for (i=0;i<32;i++)
+  for (i=0;i<70;i++)
   {
-    leds.brightness[i] = i*10;
+    leds.brightness[i] = 100+(i*2);
+    leds2.brightness[i] = 100+(i*2);
+    delay(50);
   }
+  
   mydelay(500); 
+  for (i=0;i<70;i++)
+  {
+    leds.brightness[i] = 0;
+    leds2.brightness[i] = 0;
+    delay(10);
+  }
+  
+  #if 0
   for (k=0;k<2000;k++)
   {
   for (i=0;i<32;i++)
   {
-    Serial.println("loop");
     //leds.brightness[i] =  0;
     leds.brightness[i+1] = i* (Lightuino_MAX_BRIGHTNESS/10); 
-    mydelay(2);
+    leds2.brightness[i+1] = i* (Lightuino_MAX_BRIGHTNESS/10); 
+    mydelay(50);
   }
   }
+  #endif
   }
-  //gleds = 0;  
+
+  leds.StopAutoLoop();  
   mydelay(100);
 }
 
@@ -205,13 +193,19 @@ void loop()
    out.flags |= Lightuino_FASTSET;  // fast set relies on AVR registers not digitalWrite, so may not work on some Arduino variants.
    out.flags |= Lightuino_BY32;
 
-
+   if (0)
+   {
    TestByteSet(out);
+   }
 
+   if (0)
+   {
    Serial.println("RunThru");
    RunThru(out);
+   }
 
-   if (1)
+
+   if (0)
      {
      Serial.println("Flicker Tests");
      FlickerBrightness flk(out);
@@ -228,9 +222,13 @@ void loop()
      out.flags |= Lightuino_BY32;
      FlickerRoll(flk);
      
-     out.flags &= ~Lightuino_BY32;
-     
+     out.flags &= ~Lightuino_BY32;     
      }
+     
+   if (1)
+     {
+       TestTimer(out);
+     }  
      
      
    Serial.println("RollChaser");
