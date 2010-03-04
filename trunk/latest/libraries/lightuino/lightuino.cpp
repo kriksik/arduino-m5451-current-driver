@@ -104,6 +104,8 @@ FlickerBrightness::FlickerBrightness(Lightuino& mybrd):brd(mybrd)
   
   //iteration = 0;
   offset = Lightuino_NUMOUTS-1;
+  
+  next = 0;
 }
 
 void FlickerBrightness::loop(void)
@@ -498,10 +500,11 @@ unsigned char timerLoadValue;
 #define TOGGLE_IO 13
 
 ISR(TIMER2_OVF_vect) {
-
+  FlickerBrightness* tmp = gleds;
   //Toggle the IO pin to the other state.
   //digitalWrite(TOGGLE_IO,!digitalRead(TOGGLE_IO));
-  if (gleds) gleds->loop();   
+  while (tmp) { tmp->loop(); tmp=tmp->next; }  
+  
   //Capture the current timer value. This is how much error we have
   //due to interrupt latency and the work in this function
   timerLatency=TCNT2;

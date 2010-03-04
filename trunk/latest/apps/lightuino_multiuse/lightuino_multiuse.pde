@@ -1,20 +1,32 @@
 /*? <section name="examples">
 <sketch name='lightuino_multiuse'>
 This sketch shows Lightuino control of different types of hardware.  Included are:
-1. LEDs in series
-2. RGB LEDs
-3. Lasers
-4. Servo motors
-5. DC motors (really any "load" driven by a PNP power transistor) 
-6. Relays
-<verbatim>
+<html><ul>
+<li>1. LEDs in series
+</li>
+<li>2. RGB LEDs
+</li>
+<li>3. Lasers
+</li>
+<li>4. Servo motors
+</li>
+<li>5. DC motors (really any "load" driven by a PNP power transistor)
+</li>
+<li>6. A load driven by a P-type MOSFET
+</li>
+<li>7. Relays
+</li>
+</ul></html>
 */
 
+//? <html><h3>Boilerplate Initialization</h3> <textarea cols="160" rows="30" style="font-family:monospace">
+
+//?[
 #include <lightuino.h>
 
-int myClockPin =     6;                // Arduino pin that goes to the clock on all M5451 chips
-int mySerDataPin =   5;                // Arduino pin that goes to data on one M5451 chip
-int mySerDataPin2 =  7;                // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myClockPin =     3; //6;                // Arduino pin that goes to the clock on all M5451 chips
+int mySerDataPin =   2; //5;                // Arduino pin that goes to data on one M5451 chip
+int mySerDataPin2 =  5;                // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
 int myBrightnessPin = 10;              // What Arduino pin goes to the brightness ping on the M5451s
 int ledPin = 13;  // The normal arduino example LED
 
@@ -34,20 +46,10 @@ void setup()
 Lightuino board(myClockPin,mySerDataPin,mySerDataPin2, myBrightnessPin);   
 FlickerBrightness leds(board);
 
-void pinFinder(void)
-{
-  while (1)
-  {
-
-  //leds.brightness[0] = 32;
-  //leds.brightness[34] = 64;
-  leds.brightness[35] = 128;
-  //leds.brightness[69] = 255;
-  for (int i=0;i<10;i++) leds.loop();
-  //delay(100);
-  }
-}
-
+//?]
+//?</textarea>
+//?<h3>Define which pin will control which demo</h3><textarea cols="160" rows="15" style="font-family:monospace">
+//?[
 #define LEDSERIES 35
 
 #define RGBLEDBLUE 36
@@ -60,8 +62,13 @@ void pinFinder(void)
 
 #define MOTOR 43
 #define RELAY 44
+//?]
+//?</textarea>
 
+//?<h3>The main loop</h3>
+//?<textarea cols="160" rows="30" style="font-family:monospace">
 
+//?[
 void loop() 
   {
   board.flags = Lightuino_FASTSET;
@@ -119,6 +126,7 @@ void loop()
 
 
   Serial.println("Change the speed of the DC motor");
+  
   for (int j=0;j<255;j++)
     {
     leds.brightness[MOTOR] = j;
@@ -126,9 +134,32 @@ void loop()
     }
     leds.brightness[MOTOR] = 0;
 
+   Serial.println("Turn on the relay");
+   unsigned long int relayOn = (1UL << (RELAY-32));
+
+   board.fastSet(0,relayOn,0);
+   delay(2000);
+   board.fastSet(0,0,0); 
  
   }
 }
 
-/*? </verbatim></sketch></section>
+void pinFinder(void)
+{
+  while (1)
+  {
+
+  //leds.brightness[0] = 32;
+  //leds.brightness[34] = 64;
+  leds.brightness[35] = 128;
+  //leds.brightness[69] = 255;
+  for (int i=0;i<10;i++) leds.loop();
+  //delay(100);
+  }
+}
+//?]
+//?</textarea></html>
+
+/*?</sketch></section>
 */
+

@@ -179,6 +179,7 @@ class FlickerBrightness
   int bresenham[Lightuino_NUMOUTS];
   int offset;
   Lightuino& brd;
+  FlickerBrightness* next;
 };
 //?</class>
 
@@ -246,7 +247,7 @@ class AniPattern
      AniWiper w(leds,0,32,100,CCShield_MAX_BRIGHTNESS/2-1);
      
      w.draw();
-     for (int i=0;i<100;i++)
+     for (int i=0;i!=100;i++)
      {
        w.loop();
        mydelay(100-i);
