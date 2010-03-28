@@ -104,7 +104,7 @@ FlickerBrightness::FlickerBrightness(Lightuino& mybrd):brd(mybrd)
   
   //iteration = 0;
   offset = Lightuino_NUMOUTS-1;
-  
+  minBrightness = 11;
   next = 0;
 }
 
@@ -118,7 +118,13 @@ void FlickerBrightness::loop(void)
   for (i=Lightuino_NUMOUTS-1,pos=offset;i>=0;i--,pos--)
     {
       if (pos<0) pos = Lightuino_NUMOUTS-1;
-      bresenham[i] += brightness[pos];
+      int temp = brightness[pos];
+
+      // This provides support for saturating arithemetic in the brightness, AND enforces the minimum brightness
+      if (temp>Lightuino_MAX_BRIGHTNESS) temp = Lightuino_MAX_BRIGHTNESS;
+      if (temp<minBrightness) temp = 0;
+      
+      bresenham[i] += temp;
       if (bresenham[i]>=Lightuino_MAX_BRIGHTNESS) 
         {
           bresenham[i] -= Lightuino_MAX_BRIGHTNESS;

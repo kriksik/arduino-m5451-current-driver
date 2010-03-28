@@ -173,7 +173,10 @@ class FlickerBrightness
   void StopAutoLoop(void);
   
   //? <var>Set this variable to the desired brightness, indexed by the LED you want to control</var>
-  uint8_t brightness[Lightuino_NUMOUTS];
+  int brightness[Lightuino_NUMOUTS];
+  
+  //? <var>Set this variable to force a cutoff to zero below this brightness level.  This stops a perception of flickering</var>
+  int minBrightness;
   
   // Private
   int bresenham[Lightuino_NUMOUTS];

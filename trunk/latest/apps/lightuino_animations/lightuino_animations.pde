@@ -39,12 +39,10 @@ void mydelay(int amt)
 
 void setup()
 {
-    //Start up the serial port
+  //Start up the serial port
   Serial.begin(9600);
-  //Start the timer and get the timer reload value.
-  //timerLoadValue=SetupTimer2(4*8192); //1000); //44100);  
   //Signal the program start
-  Serial.println("Lightuino library development test v1.0");
+  Serial.println("Lightuino Animations v1.1");
 }
 
 // Runs 2 independent marquees of a single led (one on the left IDE cable, one on the right).
@@ -299,8 +297,9 @@ void allDark(FlickerBrightness& leds)
 
 void loop()
 {
-  CCShield board(myClockPin,mySerDataPin,mySerDataPin2, myBrightnessPin);   
+  Lightuino board(myClockPin,mySerDataPin,mySerDataPin2, myBrightnessPin);   
   board.flags |= CCShield_FASTSET;  // fast set relies on AVR registers not digitalWrite, so may not work on some Arduino variants.
+  board.setBrightness(255);
       
   FlickerBrightness leds(board);
   leds.StartAutoLoop();
