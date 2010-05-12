@@ -1,6 +1,17 @@
-#include "lightuinoSourceDriver.h"
-#include "lightuino.h"
+#include "lightuinoSourceDriver.hxx"
 #include "wiring.h"
+
+unsigned int reverse16bits(unsigned int x) {
+ unsigned int h = 0;
+ unsigned char i = 0;
+
+ for(h = i = 0; i < 16; i++) {
+  h = (h << 1) + (x & 1); 
+  x >>= 1; 
+ }
+
+ return h;
+}
 
 LightuinoSourceDriver::LightuinoSourceDriver(unsigned char pclkPin, unsigned char pdataPin, unsigned char pstrobePin, unsigned char penaPin)
 {

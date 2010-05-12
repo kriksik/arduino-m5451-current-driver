@@ -1,5 +1,5 @@
 
-#include "lightuinoLightSensor.h"
+#include "lightuinoLightSensor.hxx"
 #include "wiring.h"
 
 LightSensor::LightSensor(unsigned char panaPin):pin(panaPin) {}    

@@ -404,7 +404,7 @@ void perfTest(Lightuino& lht)
 void testMatrix(Lightuino& sink,Mic5891& src)
 {
   LightuinoMatrix mtx(sink,src,0,16);
-  sink.finishReq=true;
+  //sink.finishReq=true;
   //memset(mtx.videoRam,0xff,((Lightuino_NUMOUTS/8)+1)*Lightuino_NUMSRCDRVR);
   //for (int i=0;i<5000;i++)
   char x=0;
