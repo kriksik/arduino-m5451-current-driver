@@ -1,4 +1,4 @@
-#include "lightuinoPwm.h"
+#include "lightuinoPwm.hxx"
 #include "inttypes.h"
 #include <wiring.h>
 #include <avr/interrupt.h>
@@ -88,7 +88,7 @@ static unsigned long reverseframe(unsigned int x) {
  return h;
 }
 
-FlickerBrightness::FlickerBrightness(Lightuino& mybrd):brd(mybrd)
+FlickerBrightness::FlickerBrightness(LightuinoSink& mybrd):brd(mybrd)
 {
   for (int i=0;i<Lightuino_NUMOUTS;i++)
   {

@@ -1,8 +1,8 @@
-#include "lightuino.h"
-#include "lightuinoPwm.h"
-#include "lightuinoIR.h"
-#include "lightuinoLightSensor.h"
-#include "lightuinoSourceDriver.h"
-#include "lightuinoMatrix.h"
+#include "lightuinoSink.hxx"
+#include "lightuinoPwm.hxx"
+#include "lightuinoIR.hxx"
+#include "lightuinoLightSensor.hxx"
+#include "lightuinoSourceDriver.hxx"
+#include "lightuinoMatrix.hxx"
 
 

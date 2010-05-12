@@ -14,7 +14,7 @@
  * mkdir c:\arduino-0012\hardware\libraries\CCShield
  * copy *.* c:\arduino-0012\hardware\libraries\CCShield
  */
-
+#include <avr/pgmspace.h>
 #include "WProgram.h"
 #include "inttypes.h"
 #include "wiring.h"
@@ -23,6 +23,33 @@
 #include "lightuino.h"
 
 #define M5451_CLK 1
+
+prog_uchar bitRevTable[] PROGMEM = { 
+  0,16,8,24,4,20,12,28,2,18,10,26,6,22,14,30,1,17,9,25,5,21,13,29,3,19,11,27,7,23,15,31 };
+
+unsigned int reverse(unsigned int x) {
+ unsigned int h = 0;
+ unsigned char i = 0;
+
+ for(h = i = 0; i < 16; i++) {
+  h = (h << 1) + (x & 1); 
+  x >>= 1; 
+ }
+
+ return h;
+}
+
+static unsigned long reverseframe(unsigned int x) {
+ unsigned int h = 0;
+ unsigned char i = 0;
+
+ for(h = i = 0; i < 13; i++) {
+  h = (h << 1) + (x & 1); 
+  x >>= 1; 
+ }
+
+ return h;
+}
 
 void setbit(unsigned char offset,unsigned long int* a, unsigned long int* b, unsigned char* c)
 {
@@ -108,6 +135,7 @@ FlickerBrightness::FlickerBrightness(Lightuino& mybrd):brd(mybrd)
   next = 0;
 }
 
+#if 0
 void FlickerBrightness::loop(void)
 {
   char i;
@@ -141,6 +169,312 @@ void FlickerBrightness::loop(void)
   
   brd.set(a);
 }
+#else
+
+#if 0
+unsigned int cnt;
+void FlickerBrightness::loop(void)
+{
+  char i=Lightuino_NUMOUTS;
+  char pos;
+  unsigned long int a[3] = {0,0,0};
+  uint8_t lvl=false;
+  int* bri = &brightness[offset];
+  int* bres = &bresenham[Lightuino_NUMOUTS-1];
+  
+  while (1)
+    {
+      register int temp = *bri;
+            
+      if (bri==brightness) bri=&brightness[Lightuino_NUMOUTS-1];
+      else bri--;
+      if (bres==bresenham) break;
+      bres--;
+      // This provides support for saturating arithemetic in the brightness, AND enforces the minimum brightness
+      if (temp>Lightuino_MAX_BRIGHTNESS) temp = Lightuino_MAX_BRIGHTNESS;
+      if (temp>minBrightness)
+        {
+        *bres += temp;
+        if (*bres>=Lightuino_MAX_BRIGHTNESS) 
+          {
+            *bres -= Lightuino_MAX_BRIGHTNESS;
+            lvl = true;
+          }
+        else lvl = false;
+        }
+        else lvl = false;
+      
+      if (i<32) a[0] = (a[0]<<1)|lvl;
+      else if (i<64) a[1] = (a[1]<<1)|lvl;
+      else a[2] = (a[2]<<1)|lvl;
+      i--;
+    }
+  //iteration++;
+  //if (iteration > Lightuino_MAX_BRIGHTNESS) iteration = 0;  
+  
+  brd.set(a);
+}
+#endif
+
+
+
+
+#if 0
+unsigned int frame=0;
+void FlickerBrightness::loop(void)
+{
+  char i=Lightuino_NUMOUTS;
+  char pos;
+  unsigned long int a[3] = {0,0,0};
+  uint8_t lvl=false;
+  int* bri = &brightness[offset];
+  
+  frame++;
+  if (frame>=Lightuino_MAX_BRIGHTNESS) frame=0;
+  unsigned int rframe = reverseframe(frame);
+  
+  while (i>=0)
+    {
+      register int temp = *bri;
+            
+      if (bri==brightness) bri=&brightness[Lightuino_NUMOUTS-1];
+      else bri--;
+      // This provides support for saturating arithemetic in the brightness, AND enforces the minimum brightness
+      if (temp>=Lightuino_MAX_BRIGHTNESS) temp = Lightuino_MAX_BRIGHTNESS-1;
+      //if (temp>minBrightness)
+        {
+          lvl = (rframe<temp);
+        }
+       // else lvl = false;
+      
+      if (i<32) a[0] = (a[0]<<1)|lvl;
+      else if (i<64) a[1] = (a[1]<<1)|lvl;
+      else a[2] = (a[2]<<1)|lvl;
+      i--;
+    }
+  //iteration++;
+  //if (iteration > Lightuino_MAX_BRIGHTNESS) iteration = 0;  
+  
+  brd.set(a);
+}
+#endif
+
+#if 0
+#define CHK(x) if (rframe < *bri) {acc |=(1UL<<x);} bri--;      
+
+unsigned int frame=0;
+void FlickerBrightness::loop(void)
+{
+  char i=Lightuino_NUMOUTS;
+  char pos;
+  unsigned long int a[3] = {0,0,0};
+  uint8_t lvl=false;
+  register int* bri = &brightness[Lightuino_NUMOUTS-1];
+  
+  frame++;
+  if (frame>=Lightuino_MAX_BRIGHTNESS) frame=0;
+  unsigned int rframe = reverseframe(frame);
+  
+  register unsigned long int acc=0;
+  
+      CHK(31UL);
+      CHK(30UL);
+      CHK(29UL);
+      CHK(28UL);
+      CHK(27UL);
+      CHK(26UL);
+      CHK(25UL);
+      CHK(24UL);
+      CHK(23UL);
+      CHK(22UL);
+      CHK(21UL);
+      CHK(20UL);
+      CHK(19UL);
+      CHK(18UL);
+      CHK(17UL);
+      CHK(16UL);
+      CHK(15UL);
+      CHK(14UL);
+      CHK(13UL);
+      CHK(12);
+      CHK(11);
+      CHK(10);
+      CHK(9);
+      CHK(8);
+      CHK(7);
+      CHK(6);
+      CHK(5);
+      CHK(4);
+      CHK(3);
+      CHK(2);
+      CHK(1);
+      CHK(0);
+      
+      a[0] = acc;
+      acc = 0;
+
+      CHK(31UL);
+      CHK(30UL);
+      CHK(29UL);
+      CHK(28UL);
+      CHK(27UL);
+      CHK(26UL);
+      CHK(25UL);
+      CHK(24UL);
+      CHK(23UL);
+      CHK(22UL);
+      CHK(21UL);
+      CHK(20UL);
+      CHK(19UL);
+      CHK(18UL);
+      CHK(17UL);
+      CHK(16UL);
+      CHK(15UL);
+      CHK(14UL);
+      CHK(13UL);
+      CHK(12);
+      CHK(11);
+      CHK(10);
+      CHK(9);
+      CHK(8);
+      CHK(7);
+      CHK(6);
+      CHK(5);
+      CHK(4);
+      CHK(3);
+      CHK(2);
+      CHK(1);
+      CHK(0);
+      
+      a[1] = acc;
+      acc = 0;
+      CHK(6);
+      CHK(5);
+      CHK(4);
+      CHK(3);
+      CHK(2);
+      CHK(1);
+      CHK(0);
+      a[2] = acc;
+      
+      // This provides support for saturating arithemetic in the brightness, AND enforces the minimum brightness
+      //if (temp>=Lightuino_MAX_BRIGHTNESS) temp = Lightuino_MAX_BRIGHTNESS-1;
+      //if (temp>minBrightness)
+        {
+         // lvl = (rframe<temp);
+        }
+       // else lvl = false;
+      
+      //if (i<32) a[0] = (a[0]<<1)|lvl;
+      //else if (i<64) a[1] = (a[1]<<1)|lvl;
+      //else a[2] = (a[2]<<1)|lvl;
+      //i--;
+   
+  //iteration++;
+  //if (iteration > Lightuino_MAX_BRIGHTNESS) iteration = 0;  
+  
+  brd.set(a);
+}
+#endif
+
+
+//#define CLK (1<<7)
+//#define LFT (1<<6)
+//#define RGT (1<<5)
+
+#define CDELAY(x) call(x)
+#define PREPDELAY(x) call(x)
+//delayMicroseconds(x);
+#define DELAYTIME 2
+
+//#define CHK() { if (rframe < *bri) {datain=LFT;} else datain=0; if (rframe < *bri2) {datain |=RGT;}; bri--; bri2--;    }
+//#define WRI() { PORTD = regVal; CDELAY(DELAYTIME); PORTD = regVal | datain; CDELAY(DELAYTIME); PORTD |= CLK; CDELAY(DELAYTIME); }
+
+#define CHK() { PORTD = regVal; temp = *bri; if ((temp>minBrightness)&&(rframe < temp)) {datain=LFT;} else datain=0; temp=*bri2; if ((temp>minBrightness)&&(rframe < temp)) {datain |=RGT;};  PORTD = regVal | datain; rframe -= Lightuino_MAX_BRIGHTNESS/(Lightuino_NUMOUTS/2); rframe&=Lightuino_MAX_BRIGHTNESS-1; CDELAY(DELAYTIME); bri--; PORTD |= CLK; CDELAY(DELAYTIME); bri2--; }
+#define WRI()
+
+void call(unsigned char loop)
+{
+  for(unsigned char i=0;i<loop;i++)
+    {
+    asm("nop");
+    }
+}
+
+unsigned int frame=0;
+void FlickerBrightness::loop(void)
+{
+  //char i=Lightuino_NUMOUTS;
+  //char pos;
+  register unsigned char CLK = 1 << brd.clockPin;
+  register unsigned char LFT = 1 << brd.serDataPin[0];
+  register unsigned char RGT = 1 << brd.serDataPin[1];
+  register int temp;
+  unsigned char datain=0;
+  register int* bri = &brightness[Lightuino_NUMOUTS-1];
+  register int* bri2 = &brightness[(Lightuino_NUMOUTS/2)-1];
+  
+  frame++;
+  if (frame>=Lightuino_MAX_BRIGHTNESS) frame=0;
+  unsigned int rframe = reverseframe(frame);
+
+  // Write the initial "start" signal
+  PORTD &= ~(CLK | LFT | RGT);  // all low
+  uint8_t regVal  = PORTD;      // remember all the other bits in the register
+  PREPDELAY(DELAYTIME);
+  PORTD = regVal | CLK;         // toggle clock
+  PORTD = regVal & (~CLK);
+  PREPDELAY(DELAYTIME);
+  PORTD = regVal | LFT | RGT;   // raise the data line on all the chips
+  PREPDELAY(DELAYTIME);
+  PORTD = regVal | CLK;         // toggle clock
+  PORTD = regVal & (~CLK);
+  PREPDELAY(DELAYTIME);
+  
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+      
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+     
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+  CHK(); WRI();
+}
+
+#endif
 
 
 Lightuino::Lightuino(uint8_t clkPin, uint8_t dataPin1, uint8_t dataPin2, uint8_t brightnessPin)
@@ -151,6 +485,7 @@ Lightuino::Lightuino(uint8_t clkPin, uint8_t dataPin1, uint8_t dataPin2, uint8_t
   serDataPin[0] = dataPin1;
   serDataPin[1] = dataPin2;
   brightPin = brightnessPin;
+  finishReq=false;
   
   pinMode(clkPin, OUTPUT);      // sets the digital pin as output
   pinMode(serDataPin[0], OUTPUT);      // sets the digital pin as output
@@ -313,7 +648,7 @@ void Lightuino::fastSet(unsigned long int a[3])
     a[0]>>=2; b[0]>>=2;   
   }
   
-    for (i=0;i<M5451_NUMOUTS-32;i++)
+    for (i=0;i<M5451_NUMOUTS-33;i++)
   {
     uint8_t lkup = (a[1]&1)+((b[1]&1)<<1);    
     a[1]>>=1; b[1]>>=1;    
@@ -323,6 +658,22 @@ void Lightuino::fastSet(unsigned long int a[3])
     PORTD |= hiclk; 
     //mydelay(M5451_CLK);
   }
+  
+  uint8_t lkup = (a[1]&1)+((b[1]&1)<<1);    
+  a[1]>>=1; b[1]>>=1;    
+  PORTD = dpOn[lkup];
+  PORTB = bpOn[lkup];
+    //mydelay(M5451_CLK);
+  if (!finishReq) PORTD |= hiclk; 
+    //mydelay(M5451_CLK);  
+  
+  
+}
+
+void Lightuino::finish()
+{
+  digitalWrite(clockPin,HIGH);
+  //PORTD |= hiclk;
 }
 
 void Lightuino::fastSetBy32(unsigned long int input[3])
