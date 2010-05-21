@@ -5,6 +5,19 @@
 
 // #define SAFEMODE
 
+//? <const name="CCShield_MAX_BRIGHTNESS">Maximum number of gradations of brightness</const>
+#define CCShield_MAX_BRIGHTNESS (4096*2)
+//? <const name="Lightuino_MAX_BRIGHTNESS">Maximum number of gradations of brightness</const>
+#define Lightuino_MAX_BRIGHTNESS (4096*2)
+
+//? <const name="Lightuino_MIN_INTENSITY">
+// This is the mininum intensity to set for flickerless viewing.  It is subjective, and also depends upon
+// how much time you are spending doing other things.  The LED will be OFF for MIN_INTENSITY/MAX_BRIGHTNESS amount of time
+// When this is (say) 1/256, you can see the LED flicker since it only blinks once per 256 loop iterations!
+// Strangely, the amount of visible flicker also depends upon how much current you put across the LEDs (ie. the "brightness" selector)</const>
+#define CCShield_MIN_INTENSITY 17  
+#define Lightuino_MIN_INTENSITY 17  
+
 //?<class name="FlickerBrightness">
 // The FlickerBrightness class changes the apparent brightness of individual LEDs by turning them off and on rapidly.
 // This technique is called PWM (pulse-width modulation) and if done fast enough, the fact of persistence of vision means
@@ -30,7 +43,7 @@ class FlickerBrightness
   void loop(void);
   
   //? <method> Call the loop() function automatically in the background...</method>
-  void StartAutoLoop(void);
+  void StartAutoLoop(int rate=4096);
   
   //? <method> Stop automatic looping</method>
   void StopAutoLoop(void);
