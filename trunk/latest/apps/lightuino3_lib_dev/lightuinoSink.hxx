@@ -43,18 +43,6 @@
 //?<const name="Lightuino_BY32">Flag selecting the mapping between memory bits and M5451 output lines</const>
 #define Lightuino_BY32 2
 
-//? <const name="CCShield_MAX_BRIGHTNESS">Maximum number of gradations of brightness</const>
-#define CCShield_MAX_BRIGHTNESS (4096*2)
-//? <const name="Lightuino_MAX_BRIGHTNESS">Maximum number of gradations of brightness</const>
-#define Lightuino_MAX_BRIGHTNESS (4096*2)
-
-//? <const name="Lightuino_MIN_INTENSITY">
-// This is the mininum intensity to set for flickerless viewing.  It is subjective, and also depends upon
-// how much time you are spending doing other things.  The LED will be OFF for MIN_INTENSITY/MAX_BRIGHTNESS amount of time
-// When this is (say) 1/256, you can see the LED flicker since it only blinks once per 256 loop iterations!
-// Strangely, the amount of visible flicker also depends upon how much current you put across the LEDs (ie. the "brightness" selector)</const>
-#define CCShield_MIN_INTENSITY 17  
-#define Lightuino_MIN_INTENSITY 17  
 //?</section>
 
 //?<section name="classes">

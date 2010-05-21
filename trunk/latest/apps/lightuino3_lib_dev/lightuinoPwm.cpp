@@ -3,6 +3,8 @@
 #include <wiring.h>
 #include <avr/interrupt.h>
 
+//#define SAFEMODE
+
 ChangeBrightness::ChangeBrightness(FlickerBrightness& thebrd,void (*doneCallback)(ChangeBrightness& me, int led)):brd(thebrd)
 {
   doneCall = doneCallback;
@@ -54,24 +56,6 @@ void ChangeBrightness::loop(void)
 //#define LFT (1<<6)
 //#define RGT (1<<5)
 
-#define CDELAY(x) call(x)
-#define PREPDELAY(x) call(x)
-//delayMicroseconds(x);
-#define DELAYTIME 2
-
-//#define CHK() { if (rframe < *bri) {datain=LFT;} else datain=0; if (rframe < *bri2) {datain |=RGT;}; bri--; bri2--;    }
-//#define WRI() { PORTD = regVal; CDELAY(DELAYTIME); PORTD = regVal | datain; CDELAY(DELAYTIME); PORTD |= CLK; CDELAY(DELAYTIME); }
-
-#define DoOne() { PORTD = regVal; temp = *bri; if ((temp>minBrightness)&&(rframe < temp)) {datain=LFT;} else datain=0; temp=*bri2; if ((temp>minBrightness)&&(rframe < temp)) {datain |=RGT;};  PORTD = regVal | datain; rframe -= Lightuino_MAX_BRIGHTNESS/(Lightuino_NUMOUTS/2); rframe&=Lightuino_MAX_BRIGHTNESS-1; CDELAY(DELAYTIME); bri--; PORTD |= CLK; CDELAY(DELAYTIME); bri2--; }
-
-
-static void call(unsigned char loop)
-{
-  for(unsigned char i=0;i<loop;i++)
-    {
-    asm("nop");
-    }
-}
 
 prog_uchar bitRevTable[] PROGMEM = { 
   0,16,8,24,4,20,12,28,2,18,10,26,6,22,14,30,1,17,9,25,5,21,13,29,3,19,11,27,7,23,15,31 };
@@ -103,10 +87,11 @@ FlickerBrightness::FlickerBrightness(LightuinoSink& mybrd):brd(mybrd)
 }
 
 #ifdef SAFEMODE
+
 unsigned int frame=0;
 void FlickerBrightness::loop(void)
 {
-  char i=Lightuino_NUMOUTS;
+  char i=Lightuino_NUMOUTS-1;
   char pos;
   unsigned long int a[3] = {0,0,0};
   uint8_t lvl=false;
@@ -142,9 +127,32 @@ void FlickerBrightness::loop(void)
 }
 
 #else
+
+#define CDELAY(x) call(x)
+#define PREPDELAY(x) call(x)
+//delayMicroseconds(x);
+#define DELAYTIME 1
+#define PDELAYTIME 4
+
+//#define CHK() { if (rframe < *bri) {datain=LFT;} else datain=0; if (rframe < *bri2) {datain |=RGT;}; bri--; bri2--;    }
+//#define WRI() { PORTD = regVal; CDELAY(DELAYTIME); PORTD = regVal | datain; CDELAY(DELAYTIME); PORTD |= CLK; CDELAY(DELAYTIME); }
+
+#define DoOne() { PORTD = regVal; temp = *bri2; if ((temp>minBrightness)&&(rframe < temp)) {datain=LFT;} else datain=0; temp=*bri; if ((temp>minBrightness)&&(rframe < temp)) {datain |=RGT;}; CDELAY(DELAYTIME); PORTD = regVal | datain;  CDELAY(DELAYTIME); bri++; PORTD |= CLK; rframe -= Lightuino_MAX_BRIGHTNESS/(Lightuino_NUMOUTS); rframe&=Lightuino_MAX_BRIGHTNESS-1; CDELAY(DELAYTIME); bri2++; }
+
+//rframe -= Lightuino_MAX_BRIGHTNESS/(Lightuino_NUMOUTS/2); rframe&=Lightuino_MAX_BRIGHTNESS-1;
+
+static void call(unsigned char loop)
+{
+  for(unsigned char i=0;i<loop;i++)
+    {
+    asm("nop");
+    }
+}
+
 unsigned int frame=0;
 void FlickerBrightness::loop(void)
 {
+  cli();
   //char i=Lightuino_NUMOUTS;
   //char pos;
   register unsigned char CLK = 1 << brd.clockPin;
@@ -152,8 +160,10 @@ void FlickerBrightness::loop(void)
   register unsigned char RGT = 1 << brd.serDataPin[1];
   register int temp;
   unsigned char datain=0;
-  register int* bri = &brightness[Lightuino_NUMOUTS-1];
-  register int* bri2 = &brightness[(Lightuino_NUMOUTS/2)-1];
+  //register int* bri = &brightness[Lightuino_NUMOUTS-1];
+  //register int* bri2 = &brightness[(Lightuino_NUMOUTS/2)-1];
+  register int* bri = &brightness[(Lightuino_NUMOUTS/2)];
+  register int* bri2 = &brightness[0];
   
   frame++;
   if (frame>=Lightuino_MAX_BRIGHTNESS) frame=0;
@@ -162,15 +172,17 @@ void FlickerBrightness::loop(void)
   // Write the initial "start" signal
   PORTD &= ~(CLK | LFT | RGT);  // all low
   uint8_t regVal  = PORTD;      // remember all the other bits in the register
-  PREPDELAY(DELAYTIME);
+  PREPDELAY(PDELAYTIME);
   PORTD = regVal | CLK;         // toggle clock
+  PREPDELAY(PDELAYTIME);
   PORTD = regVal & (~CLK);
-  PREPDELAY(DELAYTIME);
+  PREPDELAY(PDELAYTIME);
   PORTD = regVal | LFT | RGT;   // raise the data line on all the chips
-  PREPDELAY(DELAYTIME);
+  PREPDELAY(PDELAYTIME);
   PORTD = regVal | CLK;         // toggle clock
+  PREPDELAY(PDELAYTIME);
   PORTD = regVal & (~CLK);
-  PREPDELAY(DELAYTIME);
+  PREPDELAY(PDELAYTIME);
   
   DoOne();
   DoOne();
@@ -213,6 +225,7 @@ void FlickerBrightness::loop(void)
   DoOne();
   DoOne();
   DoOne();
+  sei();
 }
 #endif
 
@@ -221,7 +234,7 @@ void FlickerBrightness::loop(void)
 //Configures the ATMegay168 8-Bit Timer2 to generate an interrupt at the specified frequency.
 //Returns the time load value which must be loaded into TCNT2 inside your ISR routine.
 //See the example usage below.
-#define TIMER_CLOCK_FREQ (16000000.0/128.0) //2MHz for /8 prescale from 16MHz
+#define TIMER_CLOCK_FREQ (F_CPU/128.0) //2MHz for /8 prescale from 16MHz
 FlickerBrightness* gleds= 0;
 unsigned int timerLatency;
 unsigned char timerLoadValue;
@@ -266,10 +279,10 @@ unsigned char StopTimer2()
     TCCR2B = 0;  // Stop the timer/counter 
 }
 
-void FlickerBrightness::StartAutoLoop(void)
+void FlickerBrightness::StartAutoLoop(int rate)
 {
   gleds = this;
-  StartTimer2(4*8192);
+  StartTimer2(rate);
 }
 
 void FlickerBrightness::StopAutoLoop(void)

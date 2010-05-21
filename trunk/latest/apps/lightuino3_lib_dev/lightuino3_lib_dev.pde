@@ -12,10 +12,10 @@ int mySerDataPinRight =  5; //7; //8; //10;             // Arduino pin that goes
 int myBrightnessPin =   10; //4;          // What Arduino pin goes to the brightness ping on the M5451s
 */
 
-int myClockPin =     7; //6;                // Arduino pin that goes to the clock on all M5451 chips
-int mySerDataPinLeft =   6; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
-int mySerDataPinRight =  5; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin = 4;          // What Arduino pin goes to the brightness ping on the M5451s
+int myClockPin =     6; //6;                // Arduino pin that goes to the clock on all M5451 chips
+int mySerDataPinLeft =   5; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
+int mySerDataPinRight =  7; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myBrightnessPin = 10;          // What Arduino pin goes to the brightness ping on the M5451s
 
 
 int myRowDriverClk = 8;

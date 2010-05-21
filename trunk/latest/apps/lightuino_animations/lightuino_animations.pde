@@ -1,4 +1,4 @@
-#include <lightuino.h>
+#include <lightuino3.h>
 
 #include "avr/pgmspace.h"
 
@@ -13,7 +13,7 @@ int ledPin = 13;  // The normal arduino example LED
 int myClockPin =     7; //6;                // Arduino pin that goes to the clock on all M5451 chips
 int mySerDataPinLeft =   6; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
 int mySerDataPinRight =  5; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin = 4;          // What Arduino pin goes to the brightness ping on the M5451s
+int myBrightnessPin = 10;          // What Arduino pin goes to the brightness ping on the M5451s
 
 /*
 int myClockPin =     6;                // Arduino pin that goes to the clock on all M5451 chips
@@ -186,10 +186,10 @@ void IntensityRotater(FlickerBrightness& out,int delayTime = 300,int iters=1, in
   { 
     cur *=val;
     Serial.println(cur);
-    out.bresenham[i] = random(0,CCShield_MAX_BRIGHTNESS);
-    out.bresenham[i+CCShield_NUMOUTS/2] = random(0,CCShield_MAX_BRIGHTNESS);
-    out.bresenham[numLeds-i] = random(0,CCShield_MAX_BRIGHTNESS);
-    out.bresenham[(numLeds-i)+CCShield_NUMOUTS/2] = random(0,CCShield_MAX_BRIGHTNESS);
+    //out.bresenham[i] = random(0,CCShield_MAX_BRIGHTNESS);
+    //out.bresenham[i+CCShield_NUMOUTS/2] = random(0,CCShield_MAX_BRIGHTNESS);
+    //out.bresenham[numLeds-i] = random(0,CCShield_MAX_BRIGHTNESS);
+    //out.bresenham[(numLeds-i)+CCShield_NUMOUTS/2] = random(0,CCShield_MAX_BRIGHTNESS);
     out.brightness[i]=(int)cur;
     out.brightness[i+CCShield_NUMOUTS/2]=(int)cur;
     out.brightness[numLeds-i]=(int)cur;

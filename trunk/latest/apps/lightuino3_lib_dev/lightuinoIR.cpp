@@ -14,15 +14,15 @@ unsigned long int IrReceiver::startTime;
 unsigned long int IrReceiver::quietTime;
 
 char IrReceiver::signalState;
-unsigned long int IrReceiver::codes[Lightuino_IR_CODEBUFLEN];
+Lightuino_IR_CODETYPE IrReceiver::codes[Lightuino_IR_CODEBUFLEN];
 char IrReceiver::lastCode=1;
 char IrReceiver::firstCode=0;
 
 volatile boolean codeReady;
-volatile unsigned long long int irCode=0;
+volatile Lightuino_IR_CODETYPE irCode=0;
 volatile boolean lastState=0;
 volatile unsigned long int lastTime=0;
-volatile boolean p13state=0;
+//volatile boolean p13state=0;
 
 // Return the difference between now and some start time
 unsigned long int delta(unsigned long int start, unsigned long int now)
@@ -33,6 +33,20 @@ unsigned long int delta(unsigned long int start, unsigned long int now)
   {
     return 0xFFFFFFFFUL - tmp;
   }
+}
+
+void pushCode()
+{
+  if (IrReceiver::lastCode != IrReceiver::firstCode)
+    {
+      IrReceiver::codes[IrReceiver::lastCode] = irCode;  // Stick it on the queue
+      IrReceiver::lastCode++;
+      if (IrReceiver::lastCode >= Lightuino_IR_CODEBUFLEN) IrReceiver::lastCode=0;  // wrap it around
+    }
+      
+  //digitalWrite(13,p13state);
+  //p13state=!p13state;
+  irCode = 0;
 }
 
 ISR( sleepWakeup)
@@ -63,16 +77,7 @@ ISR( irHandler )
     // Did we get a "HEY WAKE UP!!!" signal?
     if ((interval > IrReceiver::startTime)&&irCode)
     {
-      if (IrReceiver::lastCode != IrReceiver::firstCode)
-        {
-        IrReceiver::codes[IrReceiver::lastCode] = irCode;  // Stick it on the queue
-        IrReceiver::lastCode++;
-        if (IrReceiver::lastCode >= Lightuino_IR_CODEBUFLEN) IrReceiver::lastCode=0;  // wrap it around
-        }
-      
-      digitalWrite(13,p13state);
-      p13state=!p13state;
-      irCode = 0;
+      pushCode();
     }
     
     // If we are within the range for a zero then shift a 0 in. 
@@ -121,29 +126,30 @@ void IrReceiver::sleepUntil(unsigned long int wakeCode)
 
       // Put the IR interrupt back   
       attachInterrupt(pin-2,irHandler,CHANGE);
+ 
+      if (wakeCode==0) break;  // user wants control whenever there is any IR
 
       byte i=0;
       while(i<50)  // Wait for whatever woke me up to finish xmitting.
         {
           delay(100);
           code = read();
-          if (code !=0 ) break;  // I got something real
+          if (code == wakeCode) break;  // Sift thru garbage for 5 seconds, if we get our code we are done
           i++;
         }
     } while (code != wakeCode);  // Loop if I didn't get the right wakeup code.
 }
 
 
-unsigned long int IrReceiver::read()
+Lightuino_IR_CODETYPE IrReceiver::read()
 {
-  unsigned long int ret=0;
+  Lightuino_IR_CODETYPE ret=0;
 
   cli();
   unsigned long int interval = delta(lastTime, micros());
-  if (interval>IrReceiver::quietTime)
+  if (interval>IrReceiver::startTime)
     {
-      ret = irCode;
-      irCode = 0;
+      pushCode();
     }
   
   char temp = IrReceiver::firstCode+1;
@@ -164,9 +170,15 @@ IrReceiver::IrReceiver(unsigned long int ZeroTime,unsigned long int OneTime,unsi
   {
     zeroTimeMin=ZeroTime-(ZeroTime/Variation); zeroTimeMax = ZeroTime+(ZeroTime/Variation);
     oneTimeMin=OneTime-(OneTime/Variation); oneTimeMax = OneTime+(OneTime/Variation);
+
+    for (char c=0;c<Lightuino_IR_CODEBUFLEN;c++) codes[c]=0;
+    lastCode=1;
+    firstCode=0;
+
     
     startTime=StartTime; quietTime=QuietTime;
     signalState=SignalState;
     pin = Pin;
     attachInterrupt(pin-2,irHandler,CHANGE);
+
   }
