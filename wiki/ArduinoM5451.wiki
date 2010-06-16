@@ -20,11 +20,13 @@
  # Connect your breadboard power rail to Vin on the Arduino
  # Connect your breadboard ground rail to GND on the Arduino
 
+ # Count the pins on your M5451 starting with 1 on the upper left, and going down the left side.  Then switch over to the bottom right side and count up.  So pin 40 is on the upper right.
+
 = Connections =
 
  # Connect a 1K ohm RESISTOR between 5V and M5451 pin 19. Pin 19 is brightness control -- the current going through the LEDs will be proportional to the current going into pin 19. 
  # Optionally, connect a capacitor between M5451 pin 19 to ground.  This cap is optional on a breadboard since its just there to stop ringing (flickering).
- # M5451 pin 1 should be connected to the ground rail
+ # M5451 pin 1 (upper left) should be connected to the ground rail
  # M5451 pin 20 (lower left) should be connected to 5V.
  # M5451 pins 21 (lower right) and 22 are clock and data.  They should be connected to digital IOs on the Arduino.  You can use any digital pin, but since pins 0,1, and 2 are "special", I recommend using pins 3 and 4.
  # If you have a M5450 chip (verses a 5451) pin 23 is NOT output enable so it should be LOW.  Connect it to ground ONLY if you have a M5450 chip.
