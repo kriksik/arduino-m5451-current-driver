@@ -2,26 +2,23 @@
 
 #include "avr/pgmspace.h"
 
-/*
-int myClockPin =     6;                // Arduino pin that goes to the clock on all M5451 chips
-int mySerDataPinLeft =   5;                // Arduino pin that goes to data on one M5451 chip
-int mySerDataPinRight =  7;                // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin = 10;              // What Arduino pin goes to the brightness ping on the M5451s
 int ledPin = 13;  // The normal arduino example LED
-*/
 
+#ifdef LIGHTUINO3
+/* Lightuino V3 default settings */
 int myClockPin =     7; //6;                // Arduino pin that goes to the clock on all M5451 chips
 int mySerDataPinLeft =   6; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
 int mySerDataPinRight =  5; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
 int myBrightnessPin = 10;          // What Arduino pin goes to the brightness ping on the M5451s
-
-/*
+#else
+/* Lightuino V2 default settings */
 int myClockPin =     6;                // Arduino pin that goes to the clock on all M5451 chips
-int mySerDataPinLeft =   4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
-int mySerDataPinRight =  7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin = 10;          // What Arduino pin goes to the brightness ping on the M5451s
-*/
-int ledPin = 13;  // The normal arduino example LED
+int mySerDataPinLeft =   5;                // Arduino pin that goes to data on one M5451 chip
+int mySerDataPinRight =  7;                // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myBrightnessPin = 10;              // What Arduino pin goes to the brightness ping on the M5451s
+#endif
+
+
 
 
 /* Do a delay, but also wait for user input if a global var is set */
@@ -317,6 +314,14 @@ void loop()
   board.flags |= CCShield_FASTSET;  // fast set relies on AVR registers not digitalWrite, so may not work on some Arduino variants.
   board.setBrightness(255);
 
+#ifdef LIGHTUINO3
+  if (1)  // just turn off the source drivers
+    {
+    LightuinoSourceDriver drvr;
+    drvr.set(0);
+    }
+#endif
+    
    if (1)
      {
      Serial.println("Light Check -- ALL ON");
@@ -324,7 +329,7 @@ void loop()
      }
 
   Serial.println("Say hi");
-  for (int j=0;j<10;j++)
+  for (int j=0;j<12;j++)
     {
       digitalWrite(ledPin,1);
       mydelay(j*j*5);
@@ -442,12 +447,12 @@ void loop()
 
    Serial.println("DoubleRollChaser with other lit LEDs");
    allDark(leds);
-   leds.brightness[4] = 30;
-   leds.brightness[15] = 50;
-   leds.brightness[27] = 70;
-   leds.brightness[36] = 128;
-   leds.brightness[49] = 20;
-   leds.brightness[53] = 30;
+   leds.brightness[4] = Lightuino_MAX_BRIGHTNESS/14;
+   leds.brightness[15] = Lightuino_MAX_BRIGHTNESS/7;
+   leds.brightness[27] = Lightuino_MAX_BRIGHTNESS/2;
+   leds.brightness[36] = Lightuino_MAX_BRIGHTNESS/5;
+   leds.brightness[49] = Lightuino_MAX_BRIGHTNESS/10;
+   leds.brightness[53] = Lightuino_MAX_BRIGHTNESS/20;
    // void DoubleRollChaser(FlickerBrightness& out,int delayTime = 100,int iters=1, int ledBegin=0,int numLeds=CCShield_NUMOUTS/2,int intensityChange = CCShield_MAX_BRIGHTNESS-1)
    DoubleRollChaser(leds,75,4,0,32,CCShield_MAX_BRIGHTNESS/2);
    allDark(leds);

@@ -32,6 +32,8 @@
 #define CCShield_NUMOUTS 70
 //?<const name="Lightuino_NUMOUTS">The number of output pins on the Lightuino board</const>
 #define Lightuino_NUMOUTS 70
+//?<const name="Lightuino_NUM_SINKS">The number of output pins on the Lightuino board</const>
+#define Lightuino_NUM_SINKS 70
 
 //?<const name="CCShield_FASTSET">Flag selecting the algorithm used to send data to the M5451 chips</const>
 #define CCShield_FASTSET 1

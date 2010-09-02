@@ -63,6 +63,9 @@ LightuinoSink::LightuinoSink(uint8_t clkPin, uint8_t dataPin1, uint8_t dataPin2,
   pinMode(serDataPin[1], OUTPUT);      // sets the digital pin as output
   pinMode(brightPin,OUTPUT);
 
+  set(0UL,0UL,0UL);            // Clear out any random settings caused by power up
+  analogWrite(brightPin,255);  // Turn brightness fully on by default -- helps initial adopters
+
   // Clear out the device so we can clock in items
   digitalWrite(serDataPin[0],LOW);  
   digitalWrite(serDataPin[1],LOW);  
