@@ -26,7 +26,10 @@ void mydelay(int amt)
   delay(amt);
 }
 
-//?? This function demonstrates turning the 70 sinks on/off
+//?? This function demonstrates turning the 70 sinks on/off.  The Lightuino can turn LEDs ON or OFF and not use any additional CPU. 
+//   To implement dimming requires the PWM (Pulse Width Modulation -- google it) technique, which is shown in the SinkPwmDemo
+//   function below.  Since both techniques are using the same LEDs, they can't be used at the same time.  Instead use the PWM
+//   technique only and set the LED intensity to off (0) or full (Lightuino_MAX_BRIGHTNESS-1).
 void SinkOnOffDemo()
   {
   Serial.println("Sink Discrete (On/OFF) Control Demo");
@@ -64,27 +67,46 @@ void SinkOnOffDemo()
   // Mastering them will will let you code complex patterns with less effort than doing it yourself.
 }
 
+//?? Turn all the LEDs and source drivers off
+void AllOff(void)
+{
+  LightuinoSourceDriver drvr;
+  drvr.set(0); 
+  sinks.set(0,0,0);
+}
+
 //?? This function demonstrates PWM control over the LED sinks
 void SinkPwmDemo()
   {
   Serial.println("Now show brightness changes (PWM control)");
+
+  // Start PWMing automatically at around 4000hz.  Generally you'd do this at the beginning of your sketch and leave it on the entire time, not at the beginning of a function.
+  pwm.StartAutoLoop(4000);
         
   for (int j=0;j<600;j++)
     {
-    // You just set leds.brightness[LED_NUMBER] to the desired intensity (0-255).
+    // You just set leds.brightness[LED_NUMBER] to the desired intensity (0 to LIGHTUINO_MAXBRIGHTNESS-1).
     // Note that you will see blinking at low intensities, so the minimum brightness you can set is around 30
 
     // Here I will set each LED to a slightly different intensity.
     for (int i=0;i<70;i++)
-      pwm.brightness[i] = (((i*3)+j)*10)%256;  // Your homework is to figure out why this formula works! :-)
+      pwm.brightness[i] = (((i*3)+j)*100)%Lightuino_MAX_BRIGHTNESS;  // Your homework is to figure out why this formula works! :-)
     
     // The CPU controls the rapid blinking that creates the variable brightness effect
     // so you must call leds.loop() rapidly to make it happen.
     // Note: You can also set it up so that the Lightuino library calls this function periodically automatically
-    // but that is beyond this simple tutorial.  It can be found in the lightuino_animations sketch.
-    for (int i=0;i<400;i++) pwm.loop();
+    // by calling StartAutoLoop, which is what we have done above.
+    //for (int i=0;i<400;i++) pwm.loop();
+    
+    delay(10);  // Because I am using "auto loop" I can do a normal "delay" and pwm.loop will be called in the background.
     }
+    
+    //  All done! So turn off all the LEDs
+  for (int i=0;i<70;i++) pwm.brightness[i] = 0;
+  pwm.StopAutoLoop();
+  pwm.loop(); // Do it once more to turn off all LEDs.  You have to do this manually because the autoloop might not have been called since all brightnesses were set to 0
   }
+  
 
 //?? This function demonstrates control over the source drivers (the 16 pin header on top)
 void SourceDriverDemo()
@@ -93,26 +115,33 @@ void SourceDriverDemo()
   Serial.println("Source Driver Demo");
   
   Serial.println("  Driving alternating patterns");
-  if(1) for (int i=0;i<100;i++)
+  if(1) for (int i=0;i<10;i++)
     {
+      Serial.println("  5");
       drvr.set(0x5555);
       mydelay(250);
+      
+      
+      Serial.println("  a");
       drvr.set(0xaaaa);
       mydelay(250);
     }
 
-  Serial.println("  Shifting 1 set bit (per 8 bits) through the chips.");
+  Serial.println("  Shifting 1 set bit (per 16 bits) through the chips.");
   drvr.set(0x0000);
   for (int i=0;i<100;i++)
     {
-      mydelay(100);
-      drvr.shift(((i&7)==0));
-    }  
+      mydelay(250);
+      drvr.shift(((i&15)==0));
+    }
+    
+  drvr.set(0);  // All done, so turn them all off
 }
 
 void LightSensorDemo(void)
   {
   LightSensor light;  // Initialize the light sensor
+  // LightSensor light(5);  // Note for shields: pass the analog line that the sensor is connected to.
 
   Serial.println("Light sensor demo");
 
@@ -138,7 +167,7 @@ void IrDemo(void)
   IrReceiver ir;  // Initialize the IR receiver
   Serial.println("Infrared Receiver Demo");  
   Serial.println("  Waiting for input from your infrared remote -- demo will stop after 5 one-second intervals without input.");
-  for (int i=0;i<5;)
+  for (int i=0;i<500;)
     {
     unsigned long int code = ir.read();  // Read a code from the input buffer
     if (code)                            // Nonzero means a code was received.
@@ -152,10 +181,11 @@ void IrDemo(void)
       Serial.print((unsigned long int)(code>>32),BIN);
       Serial.print(" ");
       Serial.println((unsigned long int)(code),BIN);
+      i=0;
     }
     else                                 // A zero means no code was received.
       {
-        delay(1000);
+        delay(10);
         i++;
       }    
   }
@@ -220,10 +250,15 @@ void MatrixDemo(LightuinoSink& sink)
 
 void loop(void)
 {
-  SinkOnOffDemo();
-  SinkPwmDemo();
+  AllOff();  // When the board boots up there will be random values in various chips resulting in some lights being on.
+  
+  //#if 0
   SourceDriverDemo();
+  //SinkOnOffDemo();
+  //SinkPwmDemo();
+  
   //MatrixDemo(sinks);
+//#endif
   
   LightSensorDemo();
   IrDemo();
