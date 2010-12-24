@@ -19,7 +19,7 @@
 
 #include "wiring.h"
 //extern void analogWrite(uint8_t,int);
-
+#include "lightuino.h"
 #include "lightuinoSink.h"
 
 #define M5451_CLK 1

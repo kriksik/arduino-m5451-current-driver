@@ -1,3 +1,4 @@
+#include "lightuino.h"
 #include "lightuinoMatrix.h"
 
 unsigned char letters[][7] = { 

@@ -1,3 +1,4 @@
+#include "lightuino.h"
 #include "lightuinoMatrix.h"
 
 void LightuinoMatrix::pixel(unsigned char x,unsigned char y,unsigned char val)

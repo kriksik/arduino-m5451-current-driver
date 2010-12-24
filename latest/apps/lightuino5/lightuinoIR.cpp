@@ -1,3 +1,4 @@
+#include "lightuino.h"
 #include "lightuinoIR.h"
 #include "wiring.h"
 #include <avr/interrupt.h>

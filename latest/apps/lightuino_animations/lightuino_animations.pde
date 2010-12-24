@@ -1,15 +1,29 @@
-#include <lightuino3.h>
+#include <lightuino4.h>
 
 #include "avr/pgmspace.h"
 
 int ledPin = 13;  // The normal arduino example LED
 
-#ifdef LIGHTUINO3
+//#define LIGHTUINO4
+
+#ifdef LIGHTUINO5
+int myClockPin        =   Lightuino_CLOCK_PIN;                // Arduino pin that goes to the clock on all M5451 chips
+int mySerDataPinLeft  =   Lightuino_SER_DATA_LEFT_PIN; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
+int mySerDataPinRight =   Lightuino_SER_DATA_RIGHT_PIN; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myBrightnessPin   =   Lightuino_BRIGHTNESS_PIN;          // What Arduino pin goes to the brightness ping on the M5451s
+
+#elif LIGHTUINO4
+int myClockPin =     7; //6;                // Arduino pin that goes to the clock on all M5451 chips
+int mySerDataPinLeft =   6; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
+int mySerDataPinRight =  4; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myBrightnessPin = 5;          // What Arduino pin goes to the brightness ping on the M5451s
+
+#elif LIGHTUINO3
 /* Lightuino V3 default settings */
 int myClockPin =     7; //6;                // Arduino pin that goes to the clock on all M5451 chips
 int mySerDataPinLeft =   6; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
 int mySerDataPinRight =  5; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin = 10;          // What Arduino pin goes to the brightness ping on the M5451s
+int myBrightnessPin = 3;          // What Arduino pin goes to the brightness ping on the M5451s
 #else
 /* Lightuino V2 default settings */
 int myClockPin =     6;                // Arduino pin that goes to the clock on all M5451 chips
@@ -328,15 +342,28 @@ void loop()
      board.set(0xffffffffUL, 0xffffffffUL,0xff);      
      }
 
+#if 0
+  for(int k=0;k<1;k++) for (int i=0;i<256;i++)
+    {
+      Serial.println(i);
+      Serial.println(" ");
+      board.setBrightness(i);
+      mydelay(20);
+    }
+#endif
+
   Serial.println("Say hi");
+  pinMode(ledPin,OUTPUT);
   for (int j=0;j<12;j++)
     {
       digitalWrite(ledPin,1);
       mydelay(j*j*5);
       digitalWrite(ledPin,0);
       mydelay(j*j*5);
+      
     }
-  
+  mydelay(2000); 
+  board.setBrightness(255);
   board.set(0x0UL, 0x0UL,0x0);      
    
       
@@ -352,7 +379,7 @@ void loop()
        {
        leds.brightness[i]= CCShield_MAX_BRIGHTNESS-1;
        Serial.println(i);
-       mydelay(10);
+       mydelay(50);
        leds.brightness[i]= 0;     
        }
      }
