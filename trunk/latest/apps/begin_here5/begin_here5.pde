@@ -4,29 +4,25 @@ This sketch shows basic Lightuino control, so you can get up and running quickly
 <verbatim>
 */
 
-// Include the Lightuino library
-#include <lightuino3.h>
+// Include the appropriate Lightuino library
+#include <lightuino5.h>
+// If you have a shield, include L4 instead
+//#include <lightuino4.h>
 
-#define LIGHTUINO4
-
-#ifdef LIGHTUINO4
-int myClockPin =     7; //6;                // Arduino pin that goes to the clock on all M5451 chips
-int mySerDataPinLeft =   6; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
-int mySerDataPinRight =  4; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin = 5;          // What Arduino pin goes to the brightness ping on the M5451s
-#endif
 
 void setup(void)
   {
   // Start up the serial port.  This is not required for the lightuino, I'm just doing it so I can print stuff.
   Serial.begin(9600);
-  Serial.println("Lightuino3 Introduction Sketch V1.0");
+  Serial.println("Lightuino 4/5 Introduction Sketch V1.0");
   }
   
 // Create the basic Lightuino 70 LED sink controller (the pins in the 2 40-pin IDE connectors)
-LightuinoSink sinks(myClockPin,mySerDataPinLeft,mySerDataPinRight, myBrightnessPin);   
+LightuinoSink sinks;   
+// Create the Lightuino 16 channel source driver controller (the 16 pin connector)
+LightuinoSourceDriver sources;
 
-// This object PWMs the Lightuino outputs, and provides array-based access to the Leds
+// This object PWMs the Lightuino sinks allowing individual LED brightness control, and provides array-based access to the Leds
 FlickerBrightness pwm(sinks);
 
 //?? A wrapper around delay so you can tweak how long the delays actually are...
@@ -79,8 +75,7 @@ void SinkOnOffDemo()
 //?? Turn all the LEDs and source drivers off
 void AllOff(void)
 {
-  LightuinoSourceDriver drvr;
-  drvr.set(0); 
+  sources.set(0); 
   sinks.set(0,0,0);
 }
 
@@ -124,17 +119,16 @@ void SinkPwmDemo()
 void SourceDriverDemo()
 {
   // clk,data,strobe,enable
-  LightuinoSourceDriver drvr(8,4,6,0xff);
   Serial.println("Source Driver Demo");
 
   Serial.println("Source 1");
-  drvr.set(B1);
+  sources.set(B1);
   mydelay(500);
   Serial.println("Source 2");
-  drvr.set(B10);
+  sources.set(B10);
   mydelay(500);
   Serial.println("Source 3");
-  drvr.set(B100);
+  sources.set(B100);
   mydelay(500);
 
   
@@ -142,24 +136,24 @@ void SourceDriverDemo()
   if(1) for (int i=0;i<5;i++)
     {
       Serial.println("  5");
-      drvr.set(0x5555);
+      sources.set(0x5555);
       mydelay(250);
       
       
       Serial.println("  a");
-      drvr.set(0xaaaa);
+      sources.set(0xaaaa);
       mydelay(250);
     }
 
   Serial.println("  Shifting 1 set bit (per 16 bits) through the chips.");
-  drvr.set(0x0000);
+  sources.set(0x0000);
   for (int i=0;i<25;i++)
     {
       mydelay(250);
-      drvr.shift(((i&15)==0));
+      sources.shift(((i&15)==0));
     }
     
-  drvr.set(0);  // All done, so turn them all off
+  sources.set(0);  // All done, so turn them all off
 }
 
 void LightSensorDemo(void)
@@ -220,10 +214,9 @@ const char* stringB = "SALE TOILET PAPER LIGHTLY USED   REROLLED";
 void MatrixDemo(LightuinoSink& sink)
 {
   Serial.println("LED Matrix Demo");
-  LightuinoSourceDriver src;  // Create the source driver object because we didn't create it globally (but we could have!)
-
+  
   // Create the matrix object.  Pass the source and sink objects, the start scan line, and the total # of lines.  In this case I am doing ALL of them.
-  LightuinoMatrix mtx(sink,src,0,16);  
+  LightuinoMatrix mtx(sink,sources,0,16);  
 
   Serial.println("  Turn on the entire matrix");
   mtx.clear(1);

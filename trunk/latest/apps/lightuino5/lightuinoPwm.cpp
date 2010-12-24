@@ -1,3 +1,4 @@
+#include "lightuino.h"
 #include "lightuinoPwm.h"
 #include "inttypes.h"
 #include <wiring.h>

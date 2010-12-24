@@ -1,5 +1,6 @@
 /*? <section name="lightuino">
  */ 
+#include "lightuino.h"
 
 #ifndef lightuinoSourceDriverH
 #define lightuinoSourceDriverH
@@ -16,7 +17,7 @@ class LightuinoSourceDriver
   {
     public:
     //? <ctor>The constructor takes which digital pins are connected to the source driver chip(s).</ctor>
-    LightuinoSourceDriver(unsigned char clkPin=8, unsigned char dataPin=9, unsigned char strobePin=10, unsigned char enaPin=11);
+    LightuinoSourceDriver(unsigned char clkPin=Lightuino_SRC_CLOCK_PIN, unsigned char dataPin=Lightuino_SRC_DATA_PIN, unsigned char strobePin=Lightuino_SRC_STROBE_PIN, unsigned char enaPin=Lightuino_SRC_ENABLE_PIN);
 
     unsigned char clkPin;
     unsigned char dataPin;
