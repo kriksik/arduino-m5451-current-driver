@@ -9,12 +9,29 @@ This sketch shows basic Lightuino control, so you can get up and running quickly
 // If you have a shield, include L4 instead
 //#include <lightuino4.h>
 
+// These "print" wrappers just output to BOTH USB and UART serial ports (code at the bottom)
+void println(char*s);
+void print(char*s);
+void print(int i,char format=DEC);
+void println(int i,char format=DEC);
 
+// Standard Arduino "setup" function
 void setup(void)
   {
   // Start up the serial port.  This is not required for the lightuino, I'm just doing it so I can print stuff.
   Serial.begin(9600);
-  Serial.println("Lightuino 4/5 Introduction Sketch V1.0");
+  Serial.println("serial initialized");
+  // Start up the Lightuino's USB serial port.
+#ifdef Lightuino_USB  // This #ifdef,#endif wrapper means the the code inside will only compile if your Lightuino has a USB port.
+                      // That way this sketch will work with multiple versions of the circuitboard.
+                      // But since you probably don't care that your sketch does so, you can leave these lines out.
+
+  Usb.begin();
+
+#endif                // This line need to be removed if #ifdef is removed too!
+
+  // Say hi so we know its working!
+  println("Lightuino 4/5 Introduction Sketch V5.0");
   }
   
 // Create the basic Lightuino 70 LED sink controller (the pins in the 2 40-pin IDE connectors)
@@ -37,11 +54,35 @@ void mydelay(int amt)
 //   technique only and set the LED intensity to off (0) or full (Lightuino_MAX_BRIGHTNESS-1).
 void SinkOnOffDemo()
   {
-  Serial.println("Sink Discrete (On/OFF) Control Demo");
+  println("Sink Discrete (On/OFF) Control Demo");
   
-  for (int i=0;i<15;i++)
+  println("  Turn them all on!");  
+  sinks.set(0xffffffff,0xffffffff,B00111111);  // Each bit in these 3 numbers corresponds to one LED light
+  mydelay(4000);
+
+  println("  Turn on sequentially");  
+  sinks.set(0,0,0);
+  unsigned long int a=0,b=0;
+  unsigned char c=0;
+  for (int i=0;i<70;i++)   // Instead of 70 you can use the constant "Lightuino_NUM_SINKS"
     {
-    Serial.println("  Turn on every other LED");
+      setbit(i,&a,&b,&c);  // Set a particular bit in the a,b,c variables
+      sinks.set(a,b,c);    // Set the LEDs to be on/off based on these bits.
+      mydelay(250);        // Wait
+      clearbit(i,&a,&b,&c); // Set a particular bit in the a,b,c variables to 0
+    }
+  if (0) for (int i=0;i<Lightuino_NUM_SINKS;i++)
+    {
+      clearbit(i,&a,&b,&c); // Set a particular bit in the a,b,c variables to 0
+      sinks.set(a,b,c);
+      mydelay(100);
+    }
+ 
+
+
+  for (int i=0;i<5;i++)
+    {
+    println("  Turn on every other LED");
     
     // Each bit (1 or 0) in this array corresponds to one LED light
     byte ledState[9] = {B10101010,B10101010,B10101010,B10101010,B10101010,B10101010,B10101010,B10101010,B10101010};
@@ -51,17 +92,17 @@ void SinkOnOffDemo()
       
     delay(250);
   
-    Serial.println("  Now put in the opposite pattern");
+    println("  Now put in the opposite pattern");
     // Now set up another pattern
     for (int j=0;j<9;j++) ledState[j] = B01010101;
     
     // Now send it to the chips.
     sinks.set(ledState);  
       
-    delay(250);
+    mydelay(250);
     }
    
-  Serial.println("  Turn them all off!");  
+  println("  Turn them all off!");  
   sinks.set(0,0,0);
   
   // Its THAT simple!
@@ -82,7 +123,7 @@ void AllOff(void)
 //?? This function demonstrates PWM control over the LED sinks
 void SinkPwmDemo()
   {
-  Serial.println("Now show brightness changes (PWM control)");
+  println("Now show brightness changes (PWM control)");
   sinks.setBrightness(255);
   // Start PWMing automatically at around 4000hz.  Generally you'd do this at the beginning of your sketch and leave it on the entire time, not at the beginning of a function.
   pwm.StartAutoLoop(4000);
@@ -119,33 +160,33 @@ void SinkPwmDemo()
 void SourceDriverDemo()
 {
   // clk,data,strobe,enable
-  Serial.println("Source Driver Demo");
+  println("Source Driver Demo");
 
-  Serial.println("Source 1");
+  println("Source 1");
   sources.set(B1);
   mydelay(500);
-  Serial.println("Source 2");
+  println("Source 2");
   sources.set(B10);
   mydelay(500);
-  Serial.println("Source 3");
+  println("Source 3");
   sources.set(B100);
   mydelay(500);
 
   
-  Serial.println("  Driving alternating patterns");
+  println("  Driving alternating patterns");
   if(1) for (int i=0;i<5;i++)
     {
-      Serial.println("  5");
+      println("  5");
       sources.set(0x5555);
       mydelay(250);
       
       
-      Serial.println("  a");
+      println("  a");
       sources.set(0xaaaa);
       mydelay(250);
     }
 
-  Serial.println("  Shifting 1 set bit (per 16 bits) through the chips.");
+  println("  Shifting 1 set bit (per 16 bits) through the chips.");
   sources.set(0x0000);
   for (int i=0;i<25;i++)
     {
@@ -161,44 +202,44 @@ void LightSensorDemo(void)
   LightSensor light;  // Initialize the light sensor
   // LightSensor light(5);  // Note for shields: pass the analog line that the sensor is connected to.
 
-  Serial.println("Light sensor demo");
+  println("Light sensor demo");
 
-  Serial.print("  Current: ");
+  print("  Current: ");
   int curval = light.read();  // Read it -- returns an "analog" number just like analogRead() (i.e. 0-1024)
-  Serial.println(curval);
+  println(curval);
 
-  Serial.println("  Cover the sensor fully to end the demo (automatically ends in 50 seconds)");
+  println("  Cover the sensor fully to end the demo (automatically ends in 50 seconds)");
   int val;
   int cnt = 0;
   do
     {
     val = light.read();
-    Serial.print("  Sensor value is: ");
-    Serial.println(val);
-    mydelay(500);
+    print("  Sensor value is: ");
+    println(val);
+    mydelay(300);
     cnt++;
-    } while (cnt<100 && val<LightSensor::Dusk);  // Some convenient constants are defined like "Dusk".  See the header file or docs...
+    } while (cnt<50 && val<LightSensor::Dusk);  // Some convenient constants are defined like "Dusk".  See the header file or docs...
 }
 
 void IrDemo(void)
 {
   IrReceiver ir;  // Initialize the IR receiver
-  Serial.println("Infrared Receiver Demo");  
-  Serial.println("  Waiting for input from your infrared remote -- demo will stop after 5 one-second intervals without input.");
+  println("Infrared Receiver Demo");  
+  println("  Waiting for input from your infrared remote -- demo will stop after 5 one-second intervals without input.");
   for (int i=0;i<500;)
     {
     unsigned long int code = ir.read();  // Read a code from the input buffer
     if (code)                            // Nonzero means a code was received.
     {
       // Print it out in hex and binary notation
-      Serial.print("  code: ");
-      Serial.print((unsigned long int)(code>>32),HEX);
-      Serial.print(" ");
-      Serial.print((unsigned long int)(code),HEX);
-      Serial.print(" | ");
-      Serial.print((unsigned long int)(code>>32),BIN);
-      Serial.print(" ");
-      Serial.println((unsigned long int)(code),BIN);
+      print("  code: ");
+      print((unsigned long int)(code>>32),HEX);
+      print(" ");
+      print((unsigned long int)(code),HEX);
+      print(" | ");
+      print((unsigned long int)(code>>32),BIN);
+      print(" ");
+      println((unsigned long int)(code),BIN);
       i=0;
     }
     else                                 // A zero means no code was received.
@@ -213,25 +254,25 @@ const char* stringA = "LIGHTUINO 3   SEVENTY BY SIXTEEN LED MATRIX";
 const char* stringB = "SALE TOILET PAPER LIGHTLY USED   REROLLED";
 void MatrixDemo(LightuinoSink& sink)
 {
-  Serial.println("LED Matrix Demo");
+  println("LED Matrix Demo");
   
   // Create the matrix object.  Pass the source and sink objects, the start scan line, and the total # of lines.  In this case I am doing ALL of them.
   LightuinoMatrix mtx(sink,sources,0,16);  
 
-  Serial.println("  Turn on the entire matrix");
+  println("  Turn on the entire matrix");
   mtx.clear(1);
   // You've got to keep calling loop to paint each scan line in the matrix
   for (int j=0;j<5000;j++) { mtx.loop();}
  
-  Serial.println("  Write a bit pattern into the entire matrix");
+  println("  Write a bit pattern into the entire matrix");
   memset(mtx.videoRam,0xAA,((Lightuino_NUMOUTS/8)+1)*Lightuino_NUMSRCDRVR);
   // You've got to keep calling loop to paint each scan line in the matrix
   for (int j=0;j<5000;j++) { mtx.loop();}
 
-  Serial.println("  Turn off the entire matrix");
+  println("  Turn off the entire matrix");
   mtx.clear(0);
  
-  Serial.println("  Write Pixels");
+  println("  Write Pixels");
   for(int x=0;x<Lightuino_NUMOUTS;x++)
     {
       for(int y=0;y<Lightuino_NUMSRCDRVR;y++)
@@ -243,7 +284,7 @@ void MatrixDemo(LightuinoSink& sink)
 
   mtx.clear(0);
 
-  Serial.println("  Letter Marquee");
+  println("  Letter Marquee");
   
   unsigned int cnt = 0;
   while(1)
@@ -271,7 +312,7 @@ void loop(void)
   
   //#if 0
   SourceDriverDemo();
-  //SinkOnOffDemo();
+  SinkOnOffDemo();
   //SinkPwmDemo();
   
   //MatrixDemo(sinks);
@@ -295,6 +336,40 @@ void pinFinder(void)
   pwm.brightness[69] = 255;
   for (int i=0;i<10;i++) pwm.loop();
   }
+}
+
+
+// These "print" wrappers just output to BOTH serial ports
+// but you probably just want to use the Usb serial...
+void println(char*s)
+{
+  Serial.println(s);
+#ifdef Lightuino_USB
+  Usb.println(s);
+#endif
+}
+
+void print(char*s)
+{
+  Serial.print(s);
+#ifdef Lightuino_USB
+  Usb.print(s);
+#endif
+}
+void print(int i,char format)
+{
+  Serial.print(i,format);
+#ifdef Lightuino_USB
+  Usb.print(i,format);
+#endif
+}
+
+void println(int i,char format)
+{
+  Serial.println(i,format);
+#ifdef Lightuino_USB
+  Usb.println(i,format);
+#endif
 }
 
 
