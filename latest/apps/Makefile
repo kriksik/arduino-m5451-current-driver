@@ -18,7 +18,9 @@ lightuino5.0.zip: $(wildcard lightuino5_lib_dev/*) $(wildcard begin_here5/*)
 	rm -rf lightuino5
 	mkdir -p lightuino5
 	cp lightuino5_lib_dev/*.cpp lightuino5
+	cp lightuino5_lib_dev/*.c lightuino5
 	cp lightuino5_lib_dev/*.h lightuino5
+	cp lightuino5_lib_dev/*.inf lightuino5
 	cp lightuino5_lib_dev/keywords.txt lightuino5
 	cp lightuino5_lib_dev/INSTALL lightuino5
 	cp -r begin_here5 lightuino5

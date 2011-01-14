@@ -1,75 +1,126 @@
-#include <lightuino4.h>
+
+// Include the header appropriate to you version of the Lightuino.
+// If you are using 2 boards, include both versions, highest first.
+#include <lightuino5.h>
 
 #include "avr/pgmspace.h"
 
 int ledPin = 13;  // The normal arduino example LED
 
-//#define LIGHTUINO4
 
+// Note, you don't have to do this anymore, since the default pin assignments
+// are set up by including the appropriate lightuino<version>.h file.
+// But this sketch demonstrates what you would do if you moved the default
+// pin assignments.
 #ifdef LIGHTUINO5
 int myClockPin        =   Lightuino_CLOCK_PIN;                // Arduino pin that goes to the clock on all M5451 chips
-int mySerDataPinLeft  =   Lightuino_SER_DATA_LEFT_PIN; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
-int mySerDataPinRight =   Lightuino_SER_DATA_RIGHT_PIN; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin   =   Lightuino_BRIGHTNESS_PIN;          // What Arduino pin goes to the brightness ping on the M5451s
+int mySerDataPinLeft  =   Lightuino_SER_DATA_LEFT_PIN;        // Arduino pin that goes to data on one M5451 chip
+int mySerDataPinRight =   Lightuino_SER_DATA_RIGHT_PIN;       // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myBrightnessPin   =   Lightuino_BRIGHTNESS_PIN;           // What Arduino pin goes to the brightness ping on the M5451s
 
 #elif LIGHTUINO4
-int myClockPin =     7; //6;                // Arduino pin that goes to the clock on all M5451 chips
-int mySerDataPinLeft =   6; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
-int mySerDataPinRight =  4; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin = 5;          // What Arduino pin goes to the brightness ping on the M5451s
+int myClockPin =         7;           // Arduino pin that goes to the clock on all M5451 chips
+int mySerDataPinLeft =   6;       // Arduino pin that goes to data on one M5451 chip
+int mySerDataPinRight =  4;       // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myBrightnessPin =    5;          // What Arduino pin goes to the brightness ping on the M5451s
 
 #elif LIGHTUINO3
 /* Lightuino V3 default settings */
-int myClockPin =     7; //6;                // Arduino pin that goes to the clock on all M5451 chips
-int mySerDataPinLeft =   6; //4; // 7; //9;              // Arduino pin that goes to data on one M5451 chip
-int mySerDataPinRight =  5; //7; //8; //10;             // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myClockPin =     7;           // Arduino pin that goes to the clock on all M5451 chips
+int mySerDataPinLeft =   6;       // Arduino pin that goes to data on one M5451 chip
+int mySerDataPinRight =  5;       // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
 int myBrightnessPin = 3;          // What Arduino pin goes to the brightness ping on the M5451s
 #else
 /* Lightuino V2 default settings */
-int myClockPin =     6;                // Arduino pin that goes to the clock on all M5451 chips
-int mySerDataPinLeft =   5;                // Arduino pin that goes to data on one M5451 chip
-int mySerDataPinRight =  7;                // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
-int myBrightnessPin = 10;              // What Arduino pin goes to the brightness ping on the M5451s
+int myClockPin =     6;           // Arduino pin that goes to the clock on all M5451 chips
+int mySerDataPinLeft =   5;       // Arduino pin that goes to data on one M5451 chip
+int mySerDataPinRight =  7;       // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
+int myBrightnessPin = 10;         // What Arduino pin goes to the brightness ping on the M5451s
 #endif
 
+
+// These "print" wrappers just output to BOTH serial ports
+void println(char*s)
+{
+  Serial.println(s);
+#ifdef Lightuino_USB
+  Usb.println(s);
+#endif
+}
+
+void print(char*s)
+{
+  Serial.print(s);
+#ifdef Lightuino_USB
+  Usb.print(s);
+#endif
+}
+void print(int i,char format=DEC)
+{
+  Serial.print(i,format);
+#ifdef Lightuino_USB
+  Usb.print(i,format);
+#endif
+}
+
+void println(int i,char format=DEC)
+{
+  Serial.println(i,format);
+#ifdef Lightuino_USB
+  Usb.println(i,format);
+#endif
+}
 
 
 
 /* Do a delay, but also wait for user input if a global var is set */
 char waitInput=false;
-void mydelay(int amt)
+boolean mydelay(int amt)
 {
   char incomingByte =0;
   delay(amt);
   if (waitInput)
     {
-    while (Serial.available() == 0) delay(10);    
-    incomingByte = Serial.read();
+      // Wait for input from serial or usb serial
+      while ((Serial.available()==0)
+#ifdef Lightuino_USB
+             && (Usb.available()==0))
+#endif
+        delay(10);
     }
-  else
-  {
-    if (Serial.available())
-      incomingByte = Serial.read();
-  }
+
+  if (Serial.available())
+    incomingByte = Serial.read();
+#ifdef Lightuino_USB
+  else if (Usb.available())
+    incomingByte = Usb.read();
+#endif
+
   if (incomingByte == 's')
     {
-      Serial.println("stop");
+      println("stop");
       waitInput=true;
     }
   else if (incomingByte == 'c')
     {
-      Serial.println("continue");
+      println("continue");
       waitInput=false;
     }
-
+  else if (incomingByte == 'n')
+    {
+      println("next animation");
+      return false;
+    }
+  return true;
 }
 
 void setup()
 {
   //Start up the serial port
   Serial.begin(9600);
+  Usb.begin();
   //Signal the program start
-  Serial.println("Lightuino Animations v1.1");
+  println("Lightuino Animations v2.0");
 }
 
 // Runs 2 independent marquees of a single led (one on the left IDE cable, one on the right).
@@ -93,7 +144,7 @@ void DoubleRollChaser(FlickerBrightness& out,int delayTime = 100,int iters=1, in
         out.brightness[i] += intensityChange;
         out.brightness[otherLed] += intensityChange;   
  
-        mydelay(delayTime); 
+        if (!mydelay(delayTime)) return;
     
        // Darken the prior one
        out.brightness[i] -= intensityChange;
@@ -126,7 +177,7 @@ void OpposingRollChaser(FlickerBrightness& out,int delayTime = 100,int iters=1, 
         out.brightness[i] += intensityChange;
         out.brightness[otherLed] += intensityChange;   
  
-        mydelay(delayTime); 
+        if (!mydelay(delayTime)) return;
     
        // Darken the prior one
        out.brightness[i] -= intensityChange;
@@ -153,7 +204,7 @@ void Cross(FlickerBrightness& out,int delayTime = 50,int iters=10, int ledBegin=
       if (pos[1]<ledBegin) pos[1] = ledBegin+numLeds-1;
       out.brightness[pos[0]] += intensityChange;
       out.brightness[pos[1]] += intensityChange;
-      mydelay(delayTime);    
+      if (!mydelay(delayTime)) return;    
       out.brightness[pos[0]] -= intensityChange;
       out.brightness[pos[1]] -= intensityChange;
   
@@ -196,7 +247,7 @@ void IntensityRotater(FlickerBrightness& out,int delayTime = 300,int iters=1, in
   if (1) for (i=ledBegin;i<(numLeds/2)+1;i++)
   { 
     cur *=val;
-    Serial.println(cur);
+    println(cur);
     //out.bresenham[i] = random(0,CCShield_MAX_BRIGHTNESS);
     //out.bresenham[i+CCShield_NUMOUTS/2] = random(0,CCShield_MAX_BRIGHTNESS);
     //out.bresenham[numLeds-i] = random(0,CCShield_MAX_BRIGHTNESS);
@@ -226,7 +277,7 @@ void IntensityRotater(FlickerBrightness& out,int delayTime = 300,int iters=1, in
      }
    out.brightness[i] = intensity;
    out.brightness[otherLed] = otherintensity;     
-   mydelay(delayTime); 
+   if (!mydelay(delayTime)) return; 
   }
 }
 
@@ -269,7 +320,7 @@ void Marquee(FlickerBrightness& out,int delayTime = 100,int iters=1, int ledBegi
      }
    out.brightness[i] = intensity;
    out.brightness[otherLed] = otherintensity;     
-   mydelay(delayTime); 
+   if (!mydelay(delayTime)) return; 
   }
 }
 
@@ -299,16 +350,16 @@ void RgbFader(FlickerBrightness& out, int pins[3], int delayTime, int iters)
           if (incr[j]<-10) incr[j]=-10;
           if (incr[j]==0) incr[j] = 1;
           
-          Serial.print(val);
-          Serial.print(" ");
-          Serial.print(incr[j]);
-          Serial.println(" ");
+          print(val);
+          print(" ");
+          print(incr[j]);
+          println(" ");
           
         }
         out.brightness[pins[j]] = val;
       }
       
-    mydelay(delayTime);
+   if (!mydelay(delayTime)) return;
   }
 }
 
@@ -338,28 +389,28 @@ void loop()
     
    if (1)
      {
-     Serial.println("Light Check -- ALL ON");
+     println("Light Check -- ALL ON");
      board.set(0xffffffffUL, 0xffffffffUL,0xff);      
      }
 
 #if 0
   for(int k=0;k<1;k++) for (int i=0;i<256;i++)
     {
-      Serial.println(i);
-      Serial.println(" ");
+      println(i);
+      println(" ");
       board.setBrightness(i);
       mydelay(20);
     }
 #endif
 
-  Serial.println("Say hi");
+  println("Say hi");
   pinMode(ledPin,OUTPUT);
   for (int j=0;j<12;j++)
     {
       digitalWrite(ledPin,1);
-      mydelay(j*j*5);
+      if (!mydelay(j*j*5)) break;
       digitalWrite(ledPin,0);
-      mydelay(j*j*5);
+      if (!mydelay(j*j*5)) break;
       
     }
   mydelay(2000); 
@@ -373,13 +424,13 @@ void loop()
   
    if (1)
      {
-     Serial.println("Individual Light Check");
+     println("Individual Light Check");
       
      for (int i=0;i<70;i++)
        {
        leds.brightness[i]= CCShield_MAX_BRIGHTNESS-1;
-       Serial.println(i);
-       mydelay(50);
+       println(i);
+       if (!mydelay(50)) break;
        leds.brightness[i]= 0;     
        }
      }
@@ -387,22 +438,22 @@ void loop()
    allDark(leds);
    
 #if 0
-   Serial.println("DoubleRollChaser");
+   println("DoubleRollChaser");
    DoubleRollChaser(leds);
    
    allDark(leds);
-   Serial.println("Opposite RollChaser");
+   println("Opposite RollChaser");
    OpposingRollChaser(leds); 
   
    allDark(leds);
-   Serial.println("Cross");
+   println("Cross");
    Cross(leds,50,1,0,32,(CCShield_MAX_BRIGHTNESS/2)-1,0);
 #endif
 
  //  mydelay(60000);
    allDark(leds);
-   Serial.println("Ani");
-   Serial.println("  Wiper");
+   println("Ani");
+   println("  Wiper");
    if (1)
    {
      AniWiper w(leds,0,32,100,CCShield_MAX_BRIGHTNESS/2-1);
@@ -411,12 +462,12 @@ void loop()
      for (int i=0;i<100;i++)
      {
        w.loop();
-       mydelay(100-i);
+       if (!mydelay(100-i)) break;
      }
      w.erase();
    }
 
-   Serial.println("  Sweep");
+   println("  Sweep");
    
    
    if (1)
@@ -435,7 +486,7 @@ void loop()
      for (int i=0;i<100;i++)
        {
          AniLoop(w);
-         mydelay(50);
+         if (!mydelay(50)) break;
        }
      AniErase(w);
    }
@@ -467,12 +518,12 @@ void loop()
      for (int i=0;i<100;i++)
        {
          AniLoop(w);
-         mydelay(75);
+         if (!mydelay(75)) break;
        }
      AniErase(w);
    }
 
-   Serial.println("DoubleRollChaser with other lit LEDs");
+   println("DoubleRollChaser with other lit LEDs");
    allDark(leds);
    leds.brightness[4] = Lightuino_MAX_BRIGHTNESS/14;
    leds.brightness[15] = Lightuino_MAX_BRIGHTNESS/7;
@@ -504,7 +555,7 @@ void loop()
          for(int j=0;j<CCShield_NUMOUTS/2;j++)
            leds.brightness[CCShield_NUMOUTS/2+j] = leds.brightness[j];
          
-         mydelay(25);
+         if (!mydelay(25)) break;
        }
      AniErase(w);
    }
@@ -529,7 +580,7 @@ void loop()
          // reflect whatever is from 0-35 to the other side
          for(int j=0;j<CCShield_NUMOUTS/2;j++)
            leds.brightness[CCShield_NUMOUTS/2+j] = leds.brightness[j];
-         mydelay(25);
+         if (!mydelay(25)) break;
        }
      AniErase(w);
    }
@@ -537,18 +588,18 @@ void loop()
 
 
 
-   Serial.println("Marquee");
+   println("Marquee");
    //void Marquee(FlickerBrightness& out,int delayTime = 100,int iters=1, int ledBegin=0,int numLeds=CCShield_NUMOUTS/2,int fill)
    Marquee(leds,50,200,0,32,true);
 
   //void IntensityRotater(FlickerBrightness& out,int delayTime = 100,int iters=1, int ledBegin=0,int numLeds=CCShield_NUMOUTS/2,int intensityChange = CCShield_MAX_BRIGHTNESS-1)
-   Serial.println("IntensityRotater");
+   println("IntensityRotater");
    IntensityRotater(leds,25,200);
    IntensityRotater(leds,15,300);
    IntensityRotater(leds,5,600);
    //IntensityRotater(leds,1,600);
 
-    //Serial.println("RGB Fader");
+    //println("RGB Fader");
    //int pins[3] = {28,29,30};
   //RgbFader(leds,pins,50,10000/50);
    
