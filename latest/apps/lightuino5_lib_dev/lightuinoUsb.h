@@ -6,7 +6,7 @@
   A typical use is shown below.  In the first line the object is created.
   <pre>
 
-  #include <lightuino5.h>
+  #include "lightuino5.h"
 
   void setup()
     {
@@ -30,6 +30,9 @@
   </pre>
   </html>
 */
+
+#if defined(__AVR_ATmega328P__)  // If its not the 328, its not a Lightuino so I don't need spi stuff since I am not using my USB...
+
 class LightuinoUSB
   {
     public:
@@ -49,9 +52,11 @@ class LightuinoUSB
     //?<method> Print a number out the USB serial port. </method>
     void println(unsigned long int i, char base=10)
     { print(i,base); print("\n");}
-    //?<method> Print a number out the USB serial port. </method>
+
+    // <method> Print a number out the USB serial port. </method>
     //void print(long int i, char format)
     //{ if (i<0) { print("-"); i*=-1;}; print((unsigned long int) i,format); }
+
     //?<method> Print a string out the USB serial port with appended carriage return.  ASCII only.</method>
     void println(char* str);
 
@@ -64,6 +69,8 @@ class LightuinoUSB
     //?<method> Return a character from the USB serial input buffer.</method>
     int  read(void);
   };
+//?</class>
 
 //?? Lightuino USB global variable (analoguous to "Serial")
 extern LightuinoUSB Usb;
+#endif

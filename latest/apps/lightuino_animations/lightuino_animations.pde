@@ -18,13 +18,13 @@ int mySerDataPinLeft  =   Lightuino_SER_DATA_LEFT_PIN;        // Arduino pin tha
 int mySerDataPinRight =   Lightuino_SER_DATA_RIGHT_PIN;       // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
 int myBrightnessPin   =   Lightuino_BRIGHTNESS_PIN;           // What Arduino pin goes to the brightness ping on the M5451s
 
-#elif LIGHTUINO4
+#elif defined (LIGHTUINO4)
 int myClockPin =         7;           // Arduino pin that goes to the clock on all M5451 chips
 int mySerDataPinLeft =   6;       // Arduino pin that goes to data on one M5451 chip
 int mySerDataPinRight =  4;       // Arduino pin that goes to data on another M5451 chip (if you don't have 2, set this to an unused digital pin)
 int myBrightnessPin =    5;          // What Arduino pin goes to the brightness ping on the M5451s
 
-#elif LIGHTUINO3
+#elif defined (LIGHTUINO3)
 /* Lightuino V3 default settings */
 int myClockPin =     7;           // Arduino pin that goes to the clock on all M5451 chips
 int mySerDataPinLeft =   6;       // Arduino pin that goes to data on one M5451 chip
@@ -84,8 +84,9 @@ boolean mydelay(int amt)
       // Wait for input from serial or usb serial
       while ((Serial.available()==0)
 #ifdef Lightuino_USB
-             && (Usb.available()==0))
+             && (Usb.available()==0)
 #endif
+  )
         delay(10);
     }
 
@@ -118,7 +119,9 @@ void setup()
 {
   //Start up the serial port
   Serial.begin(9600);
+#ifdef Lightuino_USB 
   Usb.begin();
+#endif  
   //Signal the program start
   println("Lightuino Animations v2.0");
 }

@@ -51,7 +51,11 @@ void LightuinoSink::setBrightness(uint8_t b)
 LightuinoSink::LightuinoSink(uint8_t clkPin, uint8_t dataPin1, uint8_t dataPin2, uint8_t brightnessPin)
 {
   int i;
+#if (defined(__AVR_ATmega168__)||defined(__AVR_ATmega328P__)||defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__))
   flags = Lightuino_FASTSET;
+#else
+  flags = 0;  // Use safeset if I don't recognise the CPU
+#endif
   clockPin = clkPin;
   serDataPin[0] = dataPin1;
   serDataPin[1] = dataPin2;
@@ -63,7 +67,7 @@ LightuinoSink::LightuinoSink(uint8_t clkPin, uint8_t dataPin1, uint8_t dataPin2,
   pinMode(serDataPin[1], OUTPUT);      // sets the digital pin as output
   pinMode(brightPin,OUTPUT);
 
-  set(0UL,0UL,0UL);            // Clear out any random settings caused by power up
+  safeSet(0UL,0UL,0UL);            // Clear out any random settings caused by power up
   analogWrite(brightPin,255);  // Turn brightness fully on by default -- helps initial adopters
 
 #if 0
@@ -147,6 +151,16 @@ void LightuinoSink::fastSetBy32(unsigned long int left, unsigned long int right,
 }
 
 
+#if (defined(__AVR_ATmega328P__)|| defined(__AVR_ATmega168__))
+#define THEPORT PORTD
+#define ARDUINO_NUMBERING_ADJUST 0
+#elif (defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__))
+#define THEPORT PORTA
+#define ARDUINO_NUMBERING_ADJUST 22
+#else
+#error Fast mode is not supported on your processor.  Hack near this line of code to add it!!
+#endif
+
 void LightuinoSink::fastSet(unsigned long int a[3])
 {
   uint8_t i;
@@ -157,7 +171,7 @@ void LightuinoSink::fastSet(unsigned long int a[3])
   digitalWrite(serDataPin[1],LOW);
 
   // Remember the low values
-  uint8_t dcurval  = PORTD;
+  uint8_t dcurval  = THEPORT;
   uint8_t bcurval = PORTB;
 
   //mydelay(M5451_CLK);
@@ -170,7 +184,7 @@ void LightuinoSink::fastSet(unsigned long int a[3])
   //mydelay(M5451_CLK);
   digitalWrite(clockPin,HIGH);
 
-  uint8_t hiclk = PORTD;
+  uint8_t hiclk = THEPORT;
 
   //mydelay(M5451_CLK);
   digitalWrite(clockPin,LOW);
@@ -186,41 +200,46 @@ void LightuinoSink::fastSet(unsigned long int a[3])
   if (serDataPin[1]>=8) bcurval &= ~(1<<(serDataPin[1]-8));
 #endif  
   
-  // Set up all possible values for PORTD
+  // Set up all possible values for THEPORT
   uint8_t dpOn[4];
   dpOn[0] = dcurval;
   //digitalPinToBitMask(serDataPin[0]);
-  if (serDataPin[0]<8) dpOn[1] = dcurval | (1<<serDataPin[0]);
+  if (serDataPin[0]<8+ARDUINO_NUMBERING_ADJUST) dpOn[1] = dcurval | (1<<(serDataPin[0]-ARDUINO_NUMBERING_ADJUST));
   else dpOn[1] = dcurval;  
-  if (serDataPin[1]<8) dpOn[2] = dcurval | (1<<serDataPin[1]);
+  if (serDataPin[1]<8+ARDUINO_NUMBERING_ADJUST) dpOn[2] = dcurval | (1<<serDataPin[1]-ARDUINO_NUMBERING_ADJUST);
   else dpOn[2] = dcurval;
   dpOn[3] = dcurval | (dpOn[1] | dpOn[2]);
 
+  
   // Set up all possible values for PORTB
+  // This code is specific to the 328 so I just disallow 2 port ranges for shields.
   uint8_t bpOn[4];
+#if (defined(__AVR_ATmega328P__)|| defined(__AVR_ATmega168__))
   bpOn[0] = bcurval;
   if (serDataPin[0]>=8) bpOn[1] = bcurval | (1<<(serDataPin[0]-8));
   else bpOn[1] = bcurval;
   if (serDataPin[1]>=8) bpOn[2] = bcurval | (1<<(serDataPin[1]-8));
   else bpOn[2] = bcurval;
   bpOn[3] = bcurval | (bpOn[1] | bpOn[2]);
-  
+#else
+  bpOn[0] = bcurval; bpOn[1] = bcurval; bpOn[2] = bcurval; bpOn[3] = bcurval;  
+#endif
   
   for (i=0;i<32;i+=2)
   {
     uint8_t lkup = (a[0]&1)+((b[0]&1)<<1);
     
-    PORTD = dpOn[lkup];
+    THEPORT = dpOn[lkup];
     PORTB = bpOn[lkup];
     //mydelay(M5451_CLK);
-    PORTD |= hiclk;
+    THEPORT |= hiclk;
     //mydelay(M5451_CLK);
     lkup = ((a[0]&2)>>1)+(b[0]&2);
     
-    PORTD = dpOn[lkup];
+    THEPORT = dpOn[lkup];
     PORTB = bpOn[lkup];
     //mydelay(M5451_CLK);
-    PORTD |= hiclk;    
+    THEPORT |= hiclk;    
     a[0]>>=2; b[0]>>=2;   
   }
   
@@ -228,19 +247,19 @@ void LightuinoSink::fastSet(unsigned long int a[3])
   {
     uint8_t lkup = (a[1]&1)+((b[1]&1)<<1);    
     a[1]>>=1; b[1]>>=1;    
-    PORTD = dpOn[lkup];
+    THEPORT = dpOn[lkup];
     PORTB = bpOn[lkup];
     //mydelay(M5451_CLK);
-    PORTD |= hiclk; 
+    THEPORT |= hiclk; 
     //mydelay(M5451_CLK);
   }
   
   uint8_t lkup = (a[1]&1)+((b[1]&1)<<1);    
   a[1]>>=1; b[1]>>=1;    
-  PORTD = dpOn[lkup];
+  THEPORT = dpOn[lkup];
   PORTB = bpOn[lkup];
     //mydelay(M5451_CLK);
-  if (!finishReq) PORTD |= hiclk; 
+  if (!finishReq) THEPORT |= hiclk; 
     //mydelay(M5451_CLK);  
   
   
@@ -249,7 +268,7 @@ void LightuinoSink::fastSet(unsigned long int a[3])
 void LightuinoSink::finish()
 {
   digitalWrite(clockPin,HIGH);
-  //PORTD |= hiclk;
+  //THEPORT |= hiclk;
 }
 
 void LightuinoSink::fastSetBy32(unsigned long int input[3])
@@ -262,7 +281,7 @@ void LightuinoSink::fastSetBy32(unsigned long int input[3])
   digitalWrite(serDataPin[1],LOW);
 
   // Remember the low values
-  uint8_t dcurval  = PORTD;
+  uint8_t dcurval  = THEPORT;
   uint8_t bcurval = PORTB;
 
   //mydelay(M5451_CLK);
@@ -275,7 +294,7 @@ void LightuinoSink::fastSetBy32(unsigned long int input[3])
   //mydelay(M5451_CLK);
   digitalWrite(clockPin,HIGH);
 
-  uint8_t hiclk = PORTD;
+  uint8_t hiclk = THEPORT;
 
   //mydelay(M5451_CLK);
   digitalWrite(clockPin,LOW);
@@ -289,41 +308,45 @@ void LightuinoSink::fastSetBy32(unsigned long int input[3])
   b[1] = input[2]>>3;
   a[1] = input[2];
   
-  // Set up all possible values for PORTD
+  // Set up all possible values for THEPORT
   uint8_t dpOn[4];
   dpOn[0] = dcurval;
   //digitalPinToBitMask(serDataPin[0]);
-  if (serDataPin[0]<8) dpOn[1] = dcurval | (1<<serDataPin[0]);
+  if (serDataPin[0]<8+ARDUINO_NUMBERING_ADJUST) dpOn[1] = dcurval | (1<<(serDataPin[0]-ARDUINO_NUMBERING_ADJUST));
   else dpOn[1] = dcurval;  
-  if (serDataPin[1]<8) dpOn[2] = dcurval | (1<<serDataPin[1]);
+  if (serDataPin[1]<8+ARDUINO_NUMBERING_ADJUST) dpOn[2] = dcurval | (1<<serDataPin[1]-ARDUINO_NUMBERING_ADJUST);
   else dpOn[2] = dcurval;
   dpOn[3] = dcurval | (dpOn[1] | dpOn[2]);
 
   // Set up all possible values for PORTB
   uint8_t bpOn[4];
+#if (defined(__AVR_ATmega328P__)|| defined(__AVR_ATmega168__))
   bpOn[0] = bcurval;
   if (serDataPin[0]>=8) bpOn[1] = bcurval | (1<<(serDataPin[0]-8));
   else bpOn[1] = bcurval;
   if (serDataPin[1]>=8) bpOn[2] = bcurval | (1<<(serDataPin[1]-8));
   else bpOn[2] = bcurval;
   bpOn[3] = bcurval | (bpOn[1] | bpOn[2]);
+#else
+  bpOn[0] = bcurval; bpOn[1] = bcurval; bpOn[2] = bcurval; bpOn[3] = bcurval;  
+#endif
   
   
   for (i=0;i<32;i+=2)
   {
     uint8_t lkup = (a[0]&1)+((b[0]&1)<<1);
     
-    PORTD = dpOn[lkup];
+    THEPORT = dpOn[lkup];
     PORTB = bpOn[lkup];
     //mydelay(M5451_CLK);
-    PORTD |= hiclk;
+    THEPORT |= hiclk;
     //mydelay(M5451_CLK);
     lkup = ((a[0]&2)>>1)+(b[0]&2);
     
-    PORTD = dpOn[lkup];
+    THEPORT = dpOn[lkup];
     PORTB = bpOn[lkup];
     //mydelay(M5451_CLK);
-    PORTD |= hiclk;    
+    THEPORT |= hiclk;    
     a[0]>>=2; b[0]>>=2;   
   }
   
@@ -331,10 +354,10 @@ void LightuinoSink::fastSetBy32(unsigned long int input[3])
   {
     uint8_t lkup = (a[1]&1)+((b[1]&1)<<1);    
     a[1]>>=1; b[1]>>=1;    
-    PORTD = dpOn[lkup];
+    THEPORT = dpOn[lkup];
     PORTB = bpOn[lkup];
     //mydelay(M5451_CLK);
-    PORTD |= hiclk; 
+    THEPORT |= hiclk; 
     //mydelay(M5451_CLK);
   }
 }

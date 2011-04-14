@@ -1,3 +1,5 @@
+#if defined(__AVR_ATmega328P__)  // If its not the 328, its not a Lightuino so I don't need spi stuff since I am not using my USB...
+
 #include "WProgram.h"
 #include "lightuinoUsb.h"
 #include "spi.h"
@@ -85,3 +87,5 @@ void LightuinoUSB::xfer(char s)
 
 
 LightuinoUSB Usb;
+
+#endif

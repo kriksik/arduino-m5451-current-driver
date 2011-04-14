@@ -24,6 +24,8 @@
 
 #include <avr/io.h>
 
+#if defined(__AVR_ATmega328P__)  // If its not the 328, its not a Lightuino so I don't need spi stuff since I am not using my USB...
+
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -90,5 +92,6 @@ uint8_t received_from_spi(uint8_t out);
 } // extern "C"
 #endif
 
+#endif
 #endif
 
