@@ -4,7 +4,10 @@
 #include <wiring.h>
 #include <avr/interrupt.h>
 
-//#define SAFEMODE
+// If we are not on a 328P then we have to use safe mode...
+#if !(defined(__AVR_ATmega328P__)||defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__))
+#define SAFEMODE
+#endif
 
 FlickerBrightness::~FlickerBrightness() {StopAutoLoop();}
 
@@ -28,7 +31,7 @@ ChangeBrightness::ChangeBrightness(FlickerBrightness& thebrd,void (*doneCallback
     }
 }
 
-void ChangeBrightness::set(uint8_t led, uint8_t intensity, int transitionDuration)
+void ChangeBrightness::set(uint8_t led, uint16_t intensity, int transitionDuration)
 {
   if (led<Lightuino_NUMOUTS)
   {
@@ -139,6 +142,16 @@ void FlickerBrightness::loop(void)
 
 #else
 
+#if defined(__AVR_ATmega328P__)
+#define THEPORT PORTD
+#define ARDUINO_NUMBERING_ADJUST 0
+#elif (defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__))
+#define THEPORT PORTA
+#define ARDUINO_NUMBERING_ADJUST 22
+#else
+#error Fast mode is not supported on your processor.  Hack near this line of code to add it!!
+#endif
+
 #define CDELAY(x) call(x)
 #define PREPDELAY(x) call(x)
 //delayMicroseconds(x);
@@ -146,9 +159,9 @@ void FlickerBrightness::loop(void)
 #define PDELAYTIME 4
 
 //#define CHK() { if (rframe < *bri) {datain=LFT;} else datain=0; if (rframe < *bri2) {datain |=RGT;}; bri--; bri2--;    }
-//#define WRI() { PORTD = regVal; CDELAY(DELAYTIME); PORTD = regVal | datain; CDELAY(DELAYTIME); PORTD |= CLK; CDELAY(DELAYTIME); }
+//#define WRI() { THEPORT = regVal; CDELAY(DELAYTIME); THEPORT = regVal | datain; CDELAY(DELAYTIME); THEPORT |= CLK; CDELAY(DELAYTIME); }
 
-#define DoOne() { PORTD = regVal; temp = *bri2; if ((temp>minBrightness)&&(rframe < temp)) {datain=LFT;} else datain=0; temp=*bri; if ((temp>minBrightness)&&(rframe < temp)) {datain |=RGT;}; CDELAY(DELAYTIME); PORTD = regVal | datain;  CDELAY(DELAYTIME); bri++; PORTD |= CLK; rframe -= Lightuino_MAX_BRIGHTNESS/(Lightuino_NUMOUTS); rframe&=Lightuino_MAX_BRIGHTNESS-1; CDELAY(DELAYTIME); bri2++; }
+#define DoOne() { THEPORT = regVal; temp = *bri2; if ((temp>minBrightness)&&(rframe < temp)) {datain=LFT;} else datain=0; temp=*bri; if ((temp>minBrightness)&&(rframe < temp)) {datain |=RGT;}; CDELAY(DELAYTIME); THEPORT = regVal | datain;  CDELAY(DELAYTIME); bri++; THEPORT |= CLK; rframe -= Lightuino_MAX_BRIGHTNESS/(Lightuino_NUMOUTS); rframe&=Lightuino_MAX_BRIGHTNESS-1; CDELAY(DELAYTIME); bri2++; }
 
 //rframe -= Lightuino_MAX_BRIGHTNESS/(Lightuino_NUMOUTS/2); rframe&=Lightuino_MAX_BRIGHTNESS-1;
 
@@ -166,9 +179,9 @@ void FlickerBrightness::loop(void)
   cli();
   //char i=Lightuino_NUMOUTS;
   //char pos;
-  register unsigned char CLK = 1 << brd.clockPin;
-  register unsigned char LFT = 1 << brd.serDataPin[0];
-  register unsigned char RGT = 1 << brd.serDataPin[1];
+  register unsigned char CLK = 1 << brd.clockPin - ARDUINO_NUMBERING_ADJUST;
+  register unsigned char LFT = 1 << brd.serDataPin[0] - ARDUINO_NUMBERING_ADJUST;
+  register unsigned char RGT = 1 << brd.serDataPin[1] - ARDUINO_NUMBERING_ADJUST;
   register int temp;
   unsigned char datain=0;
   //register int* bri = &brightness[Lightuino_NUMOUTS-1];
@@ -181,18 +194,18 @@ void FlickerBrightness::loop(void)
   unsigned int rframe = reverseframe(frame);
 
   // Write the initial "start" signal
-  PORTD &= ~(CLK | LFT | RGT);  // all low
-  uint8_t regVal  = PORTD;      // remember all the other bits in the register
+  THEPORT &= ~(CLK | LFT | RGT);  // all low
+  uint8_t regVal  = THEPORT;      // remember all the other bits in the register
   PREPDELAY(PDELAYTIME);
-  PORTD = regVal | CLK;         // toggle clock
+  THEPORT = regVal | CLK;         // toggle clock
   PREPDELAY(PDELAYTIME);
-  PORTD = regVal & (~CLK);
+  THEPORT = regVal & (~CLK);
   PREPDELAY(PDELAYTIME);
-  PORTD = regVal | LFT | RGT;   // raise the data line on all the chips
+  THEPORT = regVal | LFT | RGT;   // raise the data line on all the chips
   PREPDELAY(PDELAYTIME);
-  PORTD = regVal | CLK;         // toggle clock
+  THEPORT = regVal | CLK;         // toggle clock
   PREPDELAY(PDELAYTIME);
-  PORTD = regVal & (~CLK);
+  THEPORT = regVal & (~CLK);
   PREPDELAY(PDELAYTIME);
   
   DoOne();

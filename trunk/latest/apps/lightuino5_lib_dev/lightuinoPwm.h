@@ -69,7 +69,7 @@ class ChangeBrightness
   ChangeBrightness(FlickerBrightness& thebrd, void (*doneCallback)(ChangeBrightness& me, int led)=0);
   
   /*?<method> Transition the light at index 'led' to intensity over count iterations</method> */
-  void set(uint8_t led, uint8_t intensity, int count);
+  void set(uint8_t led, uint16_t intensity, int count);
   
   //?<method> Call loop periodically and rapidly to change the brightness.  This function calls FlickerBrightness.loop(), so
   // it is unnecessary for you to do so.</method>
@@ -79,7 +79,7 @@ class ChangeBrightness
   FlickerBrightness& brd;
   int  change[Lightuino_NUMOUTS];
   int  count[Lightuino_NUMOUTS];
-  uint8_t destination[Lightuino_NUMOUTS];  
+  uint16_t destination[Lightuino_NUMOUTS];  
   int  bresenham[Lightuino_NUMOUTS];
   void (*doneCall)(ChangeBrightness& me, int led);
 };

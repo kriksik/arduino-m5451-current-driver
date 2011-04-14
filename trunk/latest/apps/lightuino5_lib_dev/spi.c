@@ -20,6 +20,8 @@
  * THE SOFTWARE.
  */
 
+#if defined(__AVR_ATmega328P__)  // If its not the 328, its not a Lightuino so I don't need spi stuff since I am not using my USB...
+
 #include "spi.h"
 
 #ifdef __cplusplus
@@ -73,3 +75,5 @@ uint8_t received_from_spi(uint8_t data)
   //while(!(SPSR & (1<<SPIF)));
   return SPDR;
 }
+
+#endif

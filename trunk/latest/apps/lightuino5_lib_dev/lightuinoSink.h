@@ -77,7 +77,7 @@ class LightuinoSink
   // (any digital pin can be selected on the board by solder blob short)</var>
   uint8_t serDataPin[2];
 
-  //? <var>Whether a set should "finish" it off or leave one bit left to clock in (call finish()) to clock that last bit)
+  //? <var>Whether a set should "finish" it off or leave one bit left to clock in (call finish()) to clock that last bit)</var>
   uint8_t finishReq;
   
   //? <ctor>Constructor takes all of the pins needed.</ctor>

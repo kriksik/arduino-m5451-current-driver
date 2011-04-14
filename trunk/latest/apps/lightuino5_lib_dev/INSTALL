@@ -18,7 +18,7 @@ Installing the USB:
 
 Windows:
 
-Install the Lightuino "driver".  I actually uses the standard usbser.sys driver that ships with windows.  There is a .inf file in this directory that you should give to windows during the driver install process.  Ignore the "driver signing" warning... since I am not even providing a driver, this is just silliness designed to make M$ more money!
+Install the Lightuino "driver".  I actually use the standard usbser.sys driver that ships with windows.  There is a .inf file in this directory that you should give to windows during the driver install process.  Ignore the "driver signing" warning... since I am not even providing a driver, this is just silliness designed to make M$ more money!
 
 Linux:
 
@@ -69,6 +69,21 @@ lightuino5_20.build.f_cpu=20000000L
 lightuino5_20.build.core=arduino
 
 ##############################################################
+
+Using the Lightuino shield with the Arduino Mega
+
+The library has been ported to the Mega 2560, with some caveats.
+The Lightuino shield has no USB, so delete any references to the "Usb"
+global variable (generally used to print) you find in the example
+sketches.
+
+Currently, the PORTA pins (digital IOs 22 to 29) are supported.  So you'll
+have to remove the default pin selection solder blobs on the bottom of the
+board, and add jumper wires to get you to PORTA.
+
+Its pretty easy to switch the Lightuino libraries to use another set of 
+digital IOs, so long as they are in the same PORT register.  Search the forums
+or post on it for details.
 
 
 That's it!  Good luck!
