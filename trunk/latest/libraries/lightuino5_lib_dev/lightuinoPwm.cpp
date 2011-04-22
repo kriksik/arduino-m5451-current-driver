@@ -102,7 +102,6 @@ FlickerBrightness::FlickerBrightness(LightuinoSink& mybrd):brd(mybrd)
 
 #ifdef SAFEMODE
 
-unsigned int frame=0;
 void FlickerBrightness::loop(void)
 {
   char i=Lightuino_NUMOUTS-1;
@@ -156,7 +155,7 @@ void FlickerBrightness::loop(void)
 #define PREPDELAY(x) call(x)
 //delayMicroseconds(x);
 #define DELAYTIME 1
-#define PDELAYTIME 4
+#define PDELAYTIME 1
 
 //#define CHK() { if (rframe < *bri) {datain=LFT;} else datain=0; if (rframe < *bri2) {datain |=RGT;}; bri--; bri2--;    }
 //#define WRI() { THEPORT = regVal; CDELAY(DELAYTIME); THEPORT = regVal | datain; CDELAY(DELAYTIME); THEPORT |= CLK; CDELAY(DELAYTIME); }
@@ -173,7 +172,7 @@ static void call(unsigned char loop)
     }
 }
 
-unsigned int frame=0;
+
 void FlickerBrightness::loop(void)
 {
   cli();
@@ -184,8 +183,6 @@ void FlickerBrightness::loop(void)
   register unsigned char RGT = 1 << brd.serDataPin[1] - ARDUINO_NUMBERING_ADJUST;
   register int temp;
   unsigned char datain=0;
-  //register int* bri = &brightness[Lightuino_NUMOUTS-1];
-  //register int* bri2 = &brightness[(Lightuino_NUMOUTS/2)-1];
   register int* bri = &brightness[(Lightuino_NUMOUTS/2)];
   register int* bri2 = &brightness[0];
   
@@ -199,13 +196,14 @@ void FlickerBrightness::loop(void)
   PREPDELAY(PDELAYTIME);
   THEPORT = regVal | CLK;         // toggle clock
   PREPDELAY(PDELAYTIME);
-  THEPORT = regVal & (~CLK);
+  THEPORT = regVal;
+
   PREPDELAY(PDELAYTIME);
   THEPORT = regVal | LFT | RGT;   // raise the data line on all the chips
   PREPDELAY(PDELAYTIME);
-  THEPORT = regVal | CLK;         // toggle clock
+  THEPORT = regVal | CLK | LFT | RGT;         // toggle clock
   PREPDELAY(PDELAYTIME);
-  THEPORT = regVal & (~CLK);
+  THEPORT = regVal; // & (~CLK);
   PREPDELAY(PDELAYTIME);
   
   DoOne();
@@ -249,6 +247,7 @@ void FlickerBrightness::loop(void)
   DoOne();
   DoOne();
   DoOne();
+  THEPORT &= ~(CLK | LFT | RGT);  // all low
   sei();
 }
 #endif

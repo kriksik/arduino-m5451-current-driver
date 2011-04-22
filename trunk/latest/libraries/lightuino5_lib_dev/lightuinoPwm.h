@@ -52,6 +52,7 @@ class FlickerBrightness
   // Private
   //int bresenham[Lightuino_NUMOUTS];
   int offset;
+  unsigned int frame;
   LightuinoSink& brd;
   FlickerBrightness* next;
 };
