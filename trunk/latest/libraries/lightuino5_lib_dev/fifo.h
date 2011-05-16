@@ -9,11 +9,11 @@ typedef struct
   unsigned char fend;
 } FifoBuf;
 
-extern int fifoPeek(FifoBuf* ths);
-extern void fifoPush(FifoBuf* ths, char c);
+extern unsigned int fifoPeek(FifoBuf* ths);
+extern void fifoPush(FifoBuf* ths, unsigned char c);
 extern void fifoCtor(FifoBuf* ths);
-extern void fifoWrite(FifoBuf* ths, char* c, unsigned char len);
+extern void fifoWrite(FifoBuf* ths, unsigned char* c, unsigned char len);
 extern void fifoPushStr(FifoBuf* ths, char* s);
-extern int fifoPop(FifoBuf* ths);
+extern unsigned int fifoPop(FifoBuf* ths);
 
 #endif

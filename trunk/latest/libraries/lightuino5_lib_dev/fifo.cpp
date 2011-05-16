@@ -1,6 +1,6 @@
 #include "fifo.h"
 
-void fifoPush(FifoBuf* ths, char c)
+void fifoPush(FifoBuf* ths, unsigned char c)
   {
   if ((ths->fend + 1) % FIFO_BUF_SIZE != ths->start) 
     {
@@ -21,7 +21,7 @@ void fifoCtor(FifoBuf* ths)
 }
 
 
-void fifoWrite(FifoBuf* ths, char* c, unsigned char len)
+void fifoWrite(FifoBuf* ths, unsigned char* c, unsigned char len)
 {
   unsigned char i;
   for (i=0;i<len;i++)
@@ -36,13 +36,13 @@ void fifoPushStr(FifoBuf* ths, char* s)
     while(*s!=0) { fifoPush(ths,*s); s++;}
   }
 
-int fifoPeek(FifoBuf* ths)
+unsigned int fifoPeek(FifoBuf* ths)
 {
-  if (ths->fend == ths->start) return -1;
+  if (ths->fend == ths->start) return 0xffff;
   return ths->buf[ths->start];
 }
 
-int fifoPop(FifoBuf* ths)
+unsigned int fifoPop(FifoBuf* ths)
   {
   if (ths->fend != ths->start) 
       {        

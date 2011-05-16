@@ -1,4 +1,5 @@
 #include "fifo.h"
+#include "avr/pgmspace.h"
 
 /*?<class name="LightuinoUSB">
   This class handles communications to the Lightuino USB infrastructure.  It contains the same APIs as the "serial" class, except that binary data (in particular 0xff) cannot be transmitted.
@@ -36,10 +37,7 @@
 class LightuinoUSB
   {
     public:
-    FifoBuf spiRcv;
-    void xfer(char send);
-
-    char slaveSelectPin;
+    LightuinoUSB(int ssPin = 10) : slaveSelectPin(ssPin), lastMicros(0) {}
 
     //?<method> Initialize SPI communications to the USB infrastructure.  Please override member variable slaveSelectPin if needed before coalling this function.</method>
     void begin();
@@ -47,18 +45,26 @@ class LightuinoUSB
     void end();
     //?<method> Print a string out the USB serial port. ASCII only. </method>
     void print(char* str);
+    //?<method> Print a string out the USB serial port. ASCII only. </method>
+    void print(const char* str);
     //?<method> Print a number out the USB serial port. </method>
     void print(unsigned long int i, char base=10);
-    //?<method> Print a number out the USB serial port. </method>
-    void println(unsigned long int i, char base=10)
-    { print(i,base); print("\n");}
+    //?<method> Print a string out the USB serial port. ASCII only. </method>
+    void pgm_print(const char* str);
 
     // <method> Print a number out the USB serial port. </method>
     //void print(long int i, char format)
     //{ if (i<0) { print("-"); i*=-1;}; print((unsigned long int) i,format); }
 
+    //?<method> Print a number out the USB serial port. </method>
+    void println(unsigned long int i, char base=10)
+      { print(i,base); print("\n");}
     //?<method> Print a string out the USB serial port with appended carriage return.  ASCII only.</method>
     void println(char* str);
+    //?<method> Print a string out the USB serial port. ASCII only. </method>
+    void println(const char* str); 
+    //?<method> Print a string out the USB serial port. ASCII only. </method>
+    void pgm_println(const char* str);
 
     //?<method> Is USB serial input available?</method>
     char available(void);
@@ -66,8 +72,19 @@ class LightuinoUSB
     int  peek(void);
     //?<method> Send all buffered data out the USB serial buffer (currently does nothing).</method>
     void flush(void);
-    //?<method> Return a character from the USB serial input buffer.</method>
+    //?<method> Return a character from the USB serial input buffer.  Returns -1 if nothing is available.</method>
     int  read(void);
+    //?<method> (Not standard Arduino Serial) Wait for a character from the USB serial input buffer.</method>
+    int  readwait(void);
+
+
+    //?<method> (internal) Send one character to the USB serial port. </method>
+    void xfer(char send);
+  protected:
+
+    FifoBuf spiRcv;
+    unsigned char slaveSelectPin;
+    unsigned long lastMicros;
   };
 //?</class>
 
