@@ -23,10 +23,9 @@ LightuinoSourceDriver::LightuinoSourceDriver(unsigned char pclkPin, unsigned cha
   pinMode(clkPin, OUTPUT);      // sets the digital pin as output
   pinMode(dataPin, OUTPUT);     // sets the digital pin as output
   pinMode(strobePin, OUTPUT);   // sets the digital pin as output
-  pinMode(enaPin, OUTPUT);      // sets the digital pin as output
-
+  if (enaPin != 0xFF) pinMode(enaPin, OUTPUT);    // sets the digital pin as output
   digitalWrite(strobePin,HIGH);
-  digitalWrite(enaPin,LOW);    // ON
+  if (enaPin != 0xFF) digitalWrite(enaPin,LOW);    // ON
 }
 
 void LightuinoSourceDriver::set(unsigned int bits)
@@ -41,19 +40,19 @@ void LightuinoSourceDriver::set(unsigned int bits)
       digitalWrite(clkPin, LOW);      
     }
 
-  //digitalWrite(enaPin,HIGH);    // OFF
+  //if (enaPin != 0xFF) digitalWrite(enaPin,HIGH);    // toggling ENA is unnecessary... so commented out
   digitalWrite(strobePin,HIGH);
-  //digitalWrite(enaPin,LOW);    // ON
+  //if (enaPin != 0xFF) digitalWrite(enaPin,LOW);    // ON
 }
 
 void LightuinoSourceDriver::off()
 {
-  digitalWrite(enaPin,HIGH);    // OFF
+  if (enaPin != 0xFF) digitalWrite(enaPin,HIGH);    // OFF
 }
 
 void LightuinoSourceDriver::on()
 {
-  digitalWrite(enaPin,LOW);    // OFF
+  if (enaPin != 0xFF) digitalWrite(enaPin,LOW);    // OFF
 }
 
 
@@ -66,7 +65,7 @@ void LightuinoSourceDriver::shift(unsigned char bit)
   digitalWrite(clkPin, HIGH);
   digitalWrite(clkPin, LOW);      
 
-  //digitalWrite(enaPin,HIGH);    // OFF
+  //if (enaPin != 0xFF) digitalWrite(enaPin,HIGH);    // OFF
   digitalWrite(strobePin,HIGH);
-  //digitalWrite(enaPin,LOW);    // ON
+  //if (enaPin != 0xFF) digitalWrite(enaPin,LOW);    // ON
 }

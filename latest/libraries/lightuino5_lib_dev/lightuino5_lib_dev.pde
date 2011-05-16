@@ -3,7 +3,7 @@
 
 #include "lightuino5.h"
 
-//#include "avr/pgmspace.h"
+#include "avr/pgmspace.h"
 
 
 int myClockPin =       Lightuino_CLOCK_PIN;                // Arduino pin that goes to the clock on all M5451 chips
@@ -18,105 +18,6 @@ int myRowDriverEnable = Lightuino_SRC_ENABLE_PIN;
 
 #define TOGGLE_IO 13
 int ledPin = 13;  // The normal arduino example LED
-
-#if 0
-#include "spi.h"
-#include "fifo.h"
-class LightuinoUSB
-  {
-    public:
-    FifoBuf spiRcv;
-    void xfer(char send);
-
-    char slaveSelectPin;
-    void begin();
-    void end();
-    void print(char* str);
-    void println(char* str);
-
-    char available(void);
-    int  peek(void);
-    void flush(void);
-    int  read(void);
-  };
-
-
-void LightuinoUSB::xfer(char s)
-{
-  uint8_t in = send_spi(s);
-  if (in != 0xFF) 
-    {
-      fifoPush(&spiRcv, in);
-      //Serial.print("spi rcvd");
-      //Serial.println((int) in);
-    }
-}
-
-
-
-#if 0
-ISR(SPI_STC_vect)
-{
-  if (received<BUFSIZE) { incoming[received] = received_from_spi('A'); received++; }
-}
-#endif
-
-char LightuinoUSB::available(void)
-{
-  if (spiRcv.fend == spiRcv.start) xfer(0xff);
-  return (spiRcv.fend != spiRcv.start);
-}
-
-int LightuinoUSB::peek(void)
-{
-  return fifoPeek(&spiRcv);
-}
-
-void LightuinoUSB::flush(void)
-{
-}
-
-int LightuinoUSB::read(void)
-{
-  return fifoPop(&spiRcv);
-}
-
-
-void LightuinoUSB::end()
-  {
-  disable_spi();
-  }
-
-void LightuinoUSB::begin()
-  {
-    slaveSelectPin = 10;
-    // set the slaveSelectPin as an output:
-    pinMode (slaveSelectPin, OUTPUT);
-    digitalWrite(slaveSelectPin,LOW);
-    fifoCtor(&spiRcv);
-    setup_spi(SPI_MODE_0, SPI_MSB, SPI_NO_INTERRUPT, SPI_MSTR_CLK8);
-  }
-
-void LightuinoUSB::print(char* str)
-{
-  while(*str!=0)
-    {
-      xfer(*str);
-      delayMicroseconds(200);
-      str++;
-    }
-}
-
-void LightuinoUSB::println(char* str)
-{
-  print(str);
-  //xfer('\r');
-  xfer('\n');
-}
-
-
-LightuinoUSB usb;
-#endif
 
 
 void println(char*s)
@@ -174,10 +75,8 @@ void mydelay(int amt)
       waitInput=false;
     }
 
-
   do
-    {
-    
+    {   
     if (code == 0x8880222A) // play
       {
       println("remote cmd: continue");
@@ -553,6 +452,10 @@ void testMatrix(Lightuino& sink,Mic5891& src)
     }
 }
 
+const prog_char flashPrintTest[] PROGMEM = {"This is stored in flash"};
+PROGMEM const char flashPrintTest1[] = {"flash2"};
+
+/* DOES NOT WORK const char* flashPrintTest2 PROGMEM = "flash3"; */
 
 void loop()
 {
@@ -587,6 +490,12 @@ void loop()
       }
     delay(1000);
   }
+  Usb.print("Zero test: ");
+  Usb.println((unsigned long int)0);
+  Usb.print("Flash print test: ");
+  Usb.pgm_println(flashPrintTest);
+  Usb.pgm_println(flashPrintTest1);
+  //Usb.pgm_println(flashPrintTest2);
 
   if (0)  // Turn all the source drivers on for testing
     {
