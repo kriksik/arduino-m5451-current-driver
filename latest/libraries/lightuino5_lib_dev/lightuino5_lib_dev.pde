@@ -43,6 +43,21 @@ void println(int i,char format=DEC)
   Usb.println(i,format);
 }
 
+void UsbSerialLoopback(void)
+{
+  char ts[2];
+  ts[1]=0;
+  while(1)
+  {
+    int ch = Usb.read();
+    if (ch != -1) 
+      { 
+        Usb.println(ch);
+        ts[0] = ch;
+        Usb.println(ts);
+      }
+  }
+}
 
 /* Do a delay, but also wait for user input if a global var is set */
 char waitInput=false;

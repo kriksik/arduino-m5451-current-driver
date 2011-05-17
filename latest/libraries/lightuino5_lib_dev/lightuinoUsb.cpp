@@ -18,11 +18,12 @@ int LightuinoUSB::peek(void)
 
 void LightuinoUSB::flush(void)
 {
-  // Nothing to do because we automatically flush
+  while (available()) read();
 }
 
 int LightuinoUSB::read(void)
 {
+  available();  // Trigger a read if needed
   return fifoPop(&spiRcv);
 }
 
@@ -47,6 +48,7 @@ void LightuinoUSB::begin()
     setup_spi(SPI_MODE_0, SPI_MSB, SPI_NO_INTERRUPT, SPI_MSTR_CLK8);
   }
 
+
 void LightuinoUSB::print(unsigned long int num,char base)
 {
   char buf[(sizeof(unsigned long int) * 8)+1];
@@ -63,23 +65,6 @@ void LightuinoUSB::print(unsigned long int num,char base)
   print(&buf[i]);
 }
 
-
-void LightuinoUSB::print(char* str)
-{
-  while(*str!=0)
-    {
-      xfer(*str);
-      // delayMicroseconds(200); delay moved into xfer
-      str++;
-    }
-}
-
-void LightuinoUSB::println(char* str)
-{
-  print(str);
-  xfer('\n');
-}
-
 void LightuinoUSB::print(const char* str)
 {
   while(*str!=0)
@@ -94,6 +79,7 @@ void LightuinoUSB::print(const char* str)
 void LightuinoUSB::println(const char* str)
 {
   print(str);
+  xfer('\r');
   xfer('\n');
 }
 
@@ -111,6 +97,7 @@ void LightuinoUSB::pgm_print(const char* str)
 void LightuinoUSB::pgm_println(const char* str)
 {
   pgm_print(str);
+  xfer('\r');
   xfer('\n');
 }
 

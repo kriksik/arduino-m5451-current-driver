@@ -44,8 +44,6 @@ class LightuinoUSB
     //?<method> Stop communicating with USB over SPI.  You generally would only need to call this if you are using SPI for something else.</method>
     void end();
     //?<method> Print a string out the USB serial port. ASCII only. </method>
-    void print(char* str);
-    //?<method> Print a string out the USB serial port. ASCII only. </method>
     void print(const char* str);
     //?<method> Print a number out the USB serial port. </method>
     void print(unsigned long int i, char base=10);
@@ -59,18 +57,16 @@ class LightuinoUSB
     //?<method> Print a number out the USB serial port. </method>
     void println(unsigned long int i, char base=10)
       { print(i,base); print("\n");}
-    //?<method> Print a string out the USB serial port with appended carriage return.  ASCII only.</method>
-    void println(char* str);
-    //?<method> Print a string out the USB serial port. ASCII only. </method>
+    //?<method> Print a string out the USB serial port with appended carriage return. ASCII only. </method>
     void println(const char* str); 
-    //?<method> Print a string out the USB serial port. ASCII only. </method>
+    //?<method> Print a string out the USB serial port with appended carriage return. ASCII only. </method>
     void pgm_println(const char* str);
 
     //?<method> Is USB serial input available?</method>
     char available(void);
     //?<method> Return a character from the USB serial input buffer, but do not remove from the buffer.</method>
     int  peek(void);
-    //?<method> Send all buffered data out the USB serial buffer (currently does nothing).</method>
+    //?<method> Read and discard all available input.</method>
     void flush(void);
     //?<method> Return a character from the USB serial input buffer.  Returns -1 if nothing is available.</method>
     int  read(void);
