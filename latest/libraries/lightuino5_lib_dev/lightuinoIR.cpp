@@ -50,6 +50,8 @@ void pushCode()
   irCode = 0;
 }
 
+#ifndef SIM
+
 ISR( sleepWakeup)
 {
 }
@@ -98,6 +100,15 @@ ISR( irHandler )
   // Remember when we were woken up for the next time.   
   lastTime = now;
 }
+#else
+void sleepWakeup(void)
+{
+}
+void irHandler(void)
+{
+}
+
+#endif
 
 IrReceiver::~IrReceiver()
 {

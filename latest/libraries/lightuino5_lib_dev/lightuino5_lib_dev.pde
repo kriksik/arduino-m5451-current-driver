@@ -1,5 +1,8 @@
 // I use this project to test and develop the lightuino library itself.
 // It is probably not that interesting to you unless you are hacking the library.
+#ifdef SIM
+#include "WProgram.h"
+#endif
 
 #include "lightuino5.h"
 
@@ -20,13 +23,13 @@ int myRowDriverEnable = Lightuino_SRC_ENABLE_PIN;
 int ledPin = 13;  // The normal arduino example LED
 
 
-void println(char*s)
+void println(const char*s)
 {
   Serial.println(s);
   Usb.println(s);
 }
 
-void print(char*s)
+void print(const char*s)
 {
   Serial.print(s);
   Usb.print(s);

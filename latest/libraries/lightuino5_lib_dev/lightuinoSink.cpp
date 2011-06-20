@@ -98,6 +98,7 @@ int LightuinoSink::mydelay(unsigned long int clk)
   return j;
 }
 
+#ifndef SIM
 void LightuinoSink::set(unsigned long int a, unsigned long int b, unsigned long int c)
 {
   unsigned long int data[3];
@@ -150,8 +151,10 @@ void LightuinoSink::fastSetBy32(unsigned long int left, unsigned long int right,
   fastSetBy32(data);
 }
 
-
-#if (defined(__AVR_ATmega328P__)|| defined(__AVR_ATmega168__))
+#if (defined(SIM))
+#define THEPORT PORTD
+#define ARDUINO_NUMBERING_ADJUST 0
+#elif (defined(__AVR_ATmega328P__)|| defined(__AVR_ATmega168__))
 #define THEPORT PORTD
 #define ARDUINO_NUMBERING_ADJUST 0
 #elif (defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__))
@@ -442,6 +445,59 @@ void AniPattern::next(void)
   }
 }
 
+#else  // SIMULATION MODE
+
+void LightuinoSink::set(unsigned long int a, unsigned long int b, unsigned long int c)
+{
+}
+
+void LightuinoSink::set(unsigned char* a)
+{
+}
+
+
+void LightuinoSink::set(unsigned long int a[3])
+{
+}
+
+void LightuinoSink::fastSet(unsigned long int a, unsigned long int b, unsigned long int c)
+{
+}
+
+void LightuinoSink::fastSetBy32(unsigned long int left, unsigned long int right, unsigned long int overflow)
+{
+}
+
+
+void LightuinoSink::fastSet(unsigned long int a[3])
+{
+ 
+}
+
+void LightuinoSink::finish()
+{
+}
+
+void LightuinoSink::fastSetBy32(unsigned long int input[3])
+{
+}
+
+
+void LightuinoSink::safeSet(unsigned long int a, unsigned long int b, unsigned long int c)
+{
+
+}
+
+void LightuinoSink::safeSet(unsigned long int a[3])
+{
+
+}
+
+void AniPattern::next(void)
+{
+
+}
+#endif
 
 
   

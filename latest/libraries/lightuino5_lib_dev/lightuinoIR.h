@@ -58,7 +58,7 @@ class IrReceiver
    You can run the IrDemo() in the Lightuino begin_here sketch to discover the codes on your
    remote.
 */
-typedef enum
+enum
 {
   Lightuino_IR_MUTE = 0x80AA2A,
   Lightuino_IR_AVTV = 0x880A22A,

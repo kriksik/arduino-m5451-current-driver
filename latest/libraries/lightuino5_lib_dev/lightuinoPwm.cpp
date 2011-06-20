@@ -1,6 +1,8 @@
 #include "lightuino.h"
 #include "lightuinoPwm.h"
 #include "inttypes.h"
+
+#ifndef SIM
 #include <wiring.h>
 #include <avr/interrupt.h>
 
@@ -11,7 +13,7 @@
 
 FlickerBrightness::~FlickerBrightness() {StopAutoLoop();}
 
-void FlickerBrightness::shift(int amt) 
+void FlickerBrightness::shift(char amt) 
     { 
     offset+=amt; 
     if (offset>=M5451_NUMOUTS) offset -=Lightuino_NUMOUTS; 
@@ -259,24 +261,21 @@ void FlickerBrightness::loop(void)
 //See the example usage below.
 #define TIMER_CLOCK_FREQ (F_CPU/128.0) //2MHz for /8 prescale from 16MHz
 FlickerBrightness* gleds= 0;
-unsigned int timerLatency;
 unsigned char timerLoadValue;
 
-#define TOGGLE_IO 13
-
-ISR(TIMER2_OVF_vect) {
-  FlickerBrightness* tmp = gleds;
-  //Toggle the IO pin to the other state.
-  //digitalWrite(TOGGLE_IO,!digitalRead(TOGGLE_IO));
-  while (tmp) { tmp->loop(); tmp=tmp->next; }  
-  
+ISR(TIMER2_OVF_vect) 
+  {
   //Capture the current timer value. This is how much error we have
   //due to interrupt latency and the work in this function
-  timerLatency=TCNT2;
+  unsigned int timerLatency=TCNT2;
+
+  FlickerBrightness* tmp = gleds;
+  while (tmp) { tmp->loop(); tmp=tmp->next; }  
+  
 
   //Reload the timer and correct for latency.  
   TCNT2=timerLatency+timerLoadValue; 
-}
+  }
 
 void StartTimer2(float timeoutFrequency)
 {
@@ -317,3 +316,78 @@ void FlickerBrightness::StopAutoLoop(void)
     }
 }
 
+#else // Linux simulation mode -- Do nothing
+
+#include "arduinosim.h"
+#include <assert.h>
+#define PNAME "PWM"
+#define CNAME "PWM"
+
+FlickerBrightness::FlickerBrightness(LightuinoSink& mybrd):brd(mybrd)
+{
+   actionLog(PNAME,"constructed","");
+}
+
+FlickerBrightness::~FlickerBrightness() 
+  {
+    actionLog(PNAME,"destroyed","");
+  }
+
+void FlickerBrightness::shift(int amt) 
+  { 
+    actionLog(PNAME "shift",amt,"");
+  }
+
+ChangeBrightness::ChangeBrightness(FlickerBrightness& thebrd,void (*doneCallback)(ChangeBrightness& me, int led)):brd(thebrd)
+{
+    actionLog(CNAME,"constructed","");
+}
+
+void ChangeBrightness::set(uint8_t led, uint16_t intensity, int transitionDuration)
+{
+  
+  assert(led<Lightuino_NUMOUTS);
+  assert(transitionDuration>0);
+  //warnif(intensity>=Lightuino_MAX_BRIGHTNESS);
+
+  actionLog(CNAME "set",led,"Led: %d, intensity: %d, transition: %d",led, intensity,transitionDuration); 
+}
+
+void ChangeBrightness::loop(void)
+{
+}
+
+//#define CLK (1<<7)
+//#define LFT (1<<6)
+//#define RGT (1<<5)
+
+
+prog_uchar bitRevTable[] PROGMEM = { 
+  0,16,8,24,4,20,12,28,2,18,10,26,6,22,14,30,1,17,9,25,5,21,13,29,3,19,11,27,7,23,15,31 };
+
+static unsigned long reverseframe(unsigned int x) {
+ unsigned int h = 0;
+ unsigned char i = 0;
+
+ for(h = i = 0; i < 13; i++) {
+  h = (h << 1) + (x & 1); 
+  x >>= 1; 
+ }
+
+ return h;
+}
+
+void FlickerBrightness::loop(void)
+{
+}
+
+void FlickerBrightness::StartAutoLoop(int rate)
+{
+actionLog(PNAME "::StartAutoLoop",rate,"");
+}
+
+void FlickerBrightness::StopAutoLoop(void)
+{
+  actionLog(PNAME "::StopAutoLoop","","");
+}
+#endif

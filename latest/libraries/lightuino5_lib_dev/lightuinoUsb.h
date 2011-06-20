@@ -32,7 +32,7 @@
   </html>
 */
 
-#if defined(__AVR_ATmega328P__)  // If its not the 328, its not a Lightuino so I don't need spi stuff since I am not using my USB...
+#if defined(__AVR_ATmega328P__)||defined(SIM__AVR_ATmega328P__)  // If its not the 328, its not a Lightuino so I don't need spi stuff since I am not using my USB...
 
 class LightuinoUSB
   {
@@ -70,6 +70,9 @@ class LightuinoUSB
     void flush(void);
     //?<method> Return a character from the USB serial input buffer.  Returns -1 if nothing is available.</method>
     int  read(void);
+    //?<method> Write a character to the USB serial.</method>
+    int  write(char send) { xfer(send); }
+
     //?<method> (Not standard Arduino Serial) Wait for a character from the USB serial input buffer.</method>
     int  readwait(void);
 
