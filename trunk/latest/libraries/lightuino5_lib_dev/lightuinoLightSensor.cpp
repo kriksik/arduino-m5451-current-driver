@@ -1,3 +1,4 @@
+#include "WProgram.h"
 #include "lightuino.h"
 #include "lightuinoLightSensor.h"
 #include "wiring.h"

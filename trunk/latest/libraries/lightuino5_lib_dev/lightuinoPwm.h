@@ -32,7 +32,7 @@ class FlickerBrightness
   ~FlickerBrightness();
   
   //? <method>This function performs a marquee function by shifting which intensity corresponds with which actual output in Lightuino</method>
-  void shift(int amt=1); 
+  void shift(char amt=1); 
    
   //? <method>Call this function periodically and rapidly to blink the LEDs and therefore create the illusion of brightness</method>
   void loop(void);
@@ -51,7 +51,7 @@ class FlickerBrightness
   
   // Private
   //int bresenham[Lightuino_NUMOUTS];
-  int offset;
+  char offset;
   unsigned int frame;
   LightuinoSink& brd;
   FlickerBrightness* next;

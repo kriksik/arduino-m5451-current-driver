@@ -1,7 +1,8 @@
+#include "lightuinoUsb.h"
+#include "WProgram.h"
+
 #if defined(__AVR_ATmega328P__)  // If its not the 328, its not a Lightuino so I don't need spi stuff since I am not using my USB...
 
-#include "WProgram.h"
-#include "lightuinoUsb.h"
 #include "spi.h"
 #include "avr/pgmspace.h"
 
@@ -123,4 +124,83 @@ void LightuinoUSB::xfer(char s)
 
 LightuinoUSB Usb;
 
+#endif
+
+#ifdef SIM
+
+char LightuinoUSB::available(void)
+{
+  return arduinoSim.Serial.available();
+}
+
+int LightuinoUSB::peek(void)
+{
+  return arduinoSim.Serial.peek();
+}
+
+void LightuinoUSB::flush(void)
+{
+  while (available()) read();
+}
+
+int LightuinoUSB::read(void)
+{
+  return arduinoSim.Serial.read();
+}
+
+int LightuinoUSB::readwait(void)
+{
+  while (!available()) ;  // Wait for a character
+  return arduinoSim.Serial.read();
+}
+
+
+void LightuinoUSB::end()
+  {
+  
+  }
+
+void LightuinoUSB::begin()
+  {
+    // set the slaveSelectPin as an output:
+    pinMode (slaveSelectPin, OUTPUT);
+    digitalWrite(slaveSelectPin,LOW);
+    arduinoSim.Serial.begin(9600);
+  }
+
+
+void LightuinoUSB::print(unsigned long int num,char base)
+{
+  arduinoSim.Serial.print(num,base);
+}
+
+void LightuinoUSB::print(const char* str)
+{
+  arduinoSim.Serial.print(str);
+}
+
+
+void LightuinoUSB::println(const char* str)
+{
+  arduinoSim.Serial.println(str);
+}
+
+void LightuinoUSB::pgm_print(const char* str)
+{
+  arduinoSim.Serial.print(str);
+}
+
+void LightuinoUSB::pgm_println(const char* str)
+{
+  arduinoSim.Serial.println(str);  
+}
+
+
+void LightuinoUSB::xfer(char s)
+{
+  warn("Dont call this directly");
+}
+
+
+LightuinoUSB Usb;
 #endif
