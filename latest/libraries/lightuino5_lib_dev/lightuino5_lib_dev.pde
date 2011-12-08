@@ -1,7 +1,7 @@
 // I use this project to test and develop the lightuino library itself.
 // It is probably not that interesting to you unless you are hacking the library.
 #ifdef SIM
-#include "WProgram.h"
+#include "ideCompat.h"
 #endif
 
 #include "lightuino5.h"

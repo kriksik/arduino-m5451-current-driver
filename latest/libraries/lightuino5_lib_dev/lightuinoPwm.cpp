@@ -2,8 +2,13 @@
 #include "lightuinoPwm.h"
 #include "inttypes.h"
 
+// If you want to lock interrupts during draws
+//#define lock cli
+//#define unlock sei
+#define lock() 
+#define unlock()
+
 #ifndef SIM
-#include <wiring.h>
 #include <avr/interrupt.h>
 
 // If we are not on a 328P then we have to use safe mode...
@@ -177,7 +182,7 @@ static void call(unsigned char loop)
 
 void FlickerBrightness::loop(void)
 {
-  cli();
+  lock();
   //char i=Lightuino_NUMOUTS;
   //char pos;
   register unsigned char CLK = 1 << brd.clockPin - ARDUINO_NUMBERING_ADJUST;
@@ -250,7 +255,7 @@ void FlickerBrightness::loop(void)
   DoOne();
   DoOne();
   THEPORT &= ~(CLK | LFT | RGT);  // all low
-  sei();
+  unlock();
 }
 #endif
 

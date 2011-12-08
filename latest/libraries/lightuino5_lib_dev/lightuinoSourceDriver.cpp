@@ -1,6 +1,5 @@
 #include "lightuinoSourceDriver.h"
-#include "WProgram.h"
-#include "wiring.h"
+#include "ideCompat.h"
 
 unsigned int reverse16bits(unsigned int x) {
  unsigned int h = 0;

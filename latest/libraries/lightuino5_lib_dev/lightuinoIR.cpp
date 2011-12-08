@@ -1,9 +1,10 @@
 #include "lightuino.h"
 #include "lightuinoIR.h"
-#include "wiring.h"
+#include "ideCompat.h"
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include <avr/power.h>
+
 
 // IR receiver globals
 char IrReceiver::pin;
