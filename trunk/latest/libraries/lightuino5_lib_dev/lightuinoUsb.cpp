@@ -1,5 +1,5 @@
 #include "lightuinoUsb.h"
-#include "WProgram.h"
+#include "ideCompat.h"
 
 #if defined(__AVR_ATmega328P__)  // If its not the 328, its not a Lightuino so I don't need spi stuff since I am not using my USB...
 

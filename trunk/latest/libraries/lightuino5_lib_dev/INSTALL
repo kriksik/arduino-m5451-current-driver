@@ -47,6 +47,7 @@ lightuino5_16.bootloader.lock_bits=0x0F
 lightuino5_16.build.mcu=atmega328p
 lightuino5_16.build.f_cpu=16000000L
 lightuino5_16.build.core=arduino
+lightuino5_16.build.variant=eightanaloginputs
 
 ##############################################################
 
@@ -67,6 +68,7 @@ lightuino5_20.bootloader.lock_bits=0x0F
 lightuino5_20.build.mcu=atmega328p
 lightuino5_20.build.f_cpu=20000000L
 lightuino5_20.build.core=arduino
+lightuino5_20.build.variant=eightanaloginputs
 
 ##############################################################
 

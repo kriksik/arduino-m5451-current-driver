@@ -1,7 +1,6 @@
-#include "WProgram.h"
+#include "ideCompat.h"
 #include "lightuino.h"
 #include "lightuinoLightSensor.h"
-#include "wiring.h"
 
 LightSensor::LightSensor(unsigned char panaPin):pin(panaPin) {}    
 

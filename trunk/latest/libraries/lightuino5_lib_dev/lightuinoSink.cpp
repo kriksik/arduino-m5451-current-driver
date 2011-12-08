@@ -15,9 +15,8 @@
  * copy *.* c:\arduino-0012\hardware\libraries\CCShield
  */
 #include <avr/pgmspace.h>
-#include "WProgram.h"
+#include "ideCompat.h"
 
-#include "wiring.h"
 //extern void analogWrite(uint8_t,int);
 #include "lightuino.h"
 #include "lightuinoSink.h"
